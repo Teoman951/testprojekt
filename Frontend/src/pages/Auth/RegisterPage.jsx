@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+// Definiere die Basis-URL hier, am besten außerhalb der Komponente oder in einer Konfigurationsdatei
+const API_BASE_URL = 'http://localhost:3001'; // Dein Backend-Server-Port
+
 function RegisterPage() {
-    const [name, setName] = useState('');
+    // useState für den Benutzernamen (username)
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -12,7 +16,8 @@ function RegisterPage() {
         e.preventDefault();
         setError('');
 
-        if (!name || !email || !password) {
+        // Überprüfe, ob alle Felder ausgefüllt sind (jetzt mit username)
+        if (!username || !email || !password) {
             setError('Bitte alle Felder ausfüllen.');
             return;
         }
@@ -22,12 +27,15 @@ function RegisterPage() {
         }
 
         try {
-            const response = await fetch('/api/auth/register', {
+            // Die fetch-Anfrage verwendet jetzt die definierte API_BASE_URL
+            // Sende 'username' im Body, passend zum Backend
+            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name, email, password }),
+                // HIER ist die Korrektur: username statt name im JSON-Body
+                body: JSON.stringify({ username, email, password }),
             });
 
             const data = await response.json();
@@ -36,9 +44,11 @@ function RegisterPage() {
                 alert('Registrierung erfolgreich! Bitte logge dich jetzt ein.');
                 navigate('/login');
             } else {
+                // Backend-Fehlermeldung anzeigen, falls vorhanden
                 setError(data.message || 'Registrierung fehlgeschlagen. Versuchen Sie eine andere E-Mail.');
             }
         } catch (err) {
+            // Generischer Fehler für Netzwerkprobleme oder unerwartete Antworten
             setError('Netzwerkfehler: Server nicht erreichbar oder Verbindungsproblem.');
             console.error('Registration Error:', err);
         }
@@ -50,12 +60,12 @@ function RegisterPage() {
             {error && <p className="error-message">{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="name">Name:</label>
+                    <label htmlFor="username">Benutzername:</label> {/* Label auf Benutzername geändert */}
                     <input
                         type="text"
-                        id="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        id="username" // ID auf Benutzername geändert
+                        value={username} // HIER die Korrektur: value an den username State binden
+                        onChange={(e) => setUsername(e.target.value)} // HIER die Korrektur: onChange an setUsername binden
                         required
                     />
                 </div>
