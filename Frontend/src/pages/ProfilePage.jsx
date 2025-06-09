@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+// Definiere die Basis-URL hier, am besten außerhalb der Komponente oder in einer Konfigurationsdatei
+const API_BASE_URL = 'http://localhost:3001'; // Dein Backend-Server-Port
 function ProfilePage() {
     const [profileData, setProfileData] = useState(null);
     const [error, setError] = useState('');
