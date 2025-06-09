@@ -25,7 +25,7 @@ function App() {
     return (
         <div className="App">
             <nav className="navbar">
-                <Link to="/" className="navbar-brand">DriveLink HSB</Link>
+                <Link to="/" className="navbar-brand">MoveSmart HSB</Link>
                 <div className="navbar-links">
                     {token ? ( // Navigationslinks, wenn der Benutzer angemeldet ist
                         <>
@@ -49,6 +49,7 @@ function App() {
                 <Routes>
                     {/* Routen, die immer erreichbar sind */}
                     {/* onLoginSuccess wird nun vom useAuth-Hook bereitgestellt */}
+                    <Route path="/home" element={<HomePage />} />
                     <Route path="/login" element={<LoginPage onLoginSuccess={login} />} />
                     <Route path="/register" element={<RegisterPage />} />
 
@@ -60,7 +61,7 @@ function App() {
 
                     {/* Standard-Route für den Start oder unbekannte Pfade */}
                     {/* Leitet zur Startseite um, wenn eingeloggt, sonst zur Login-Seite */}
-                    <Route path="/" element={token ? <HomePage /> : <LoginPage onLoginSuccess={login} />} />
+                    <Route path="/" element={ <HomePage /> } />
                     <Route path="*" element={<h2 className="content-container">Seite nicht gefunden (404)</h2>} />
                 </Routes>
             </main>
