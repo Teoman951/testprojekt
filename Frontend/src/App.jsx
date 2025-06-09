@@ -1,69 +1,90 @@
-import React from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
-import './App.css'; // Stellt sicher, dass diese Datei existiert oder entfernt den Import
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
-// Imports der ausgelagerten Komponenten - KORRIGIERTE PFADE
-import LoginPage from './pages/Auth/LoginPage'; // Hinzufügen von './'
-import RegisterPage from './pages/Auth/RegisterPage'; // Hinzufügen von './'
-import HomePage from './pages/HomePage'; // Hinzufügen von './'
-import ProfilePage from './pages/ProfilePage'; // Hinzufügen von './'
-import ReservationsPage from './pages/ReservationsPage'; // Hinzufügen von './'
-import NewReservationPage from './pages/NewReservationPage'; // Hinzufügen von './'
 
-// Import der PrivateRoute Komponente - KORRIGIERTER PFAD
-import PrivateRoute from './components/PrivateRoute'; // Hinzufügen von './'
+// Importe für die Authentifizierungsseiten (jetzt unter 'Auth')
+import RegisterPage from './pages/Auth/RegisterPage';
+import LoginPage from './pages/Auth/LoginPage';
 
-// Import des Auth Hooks - KORRIGIERTER PFAD
-import useAuth from './hooks/useAuth'; // Hinzufügen von './'
-// --- Hauptkomponente der React-Anwendung ---
+// Importe für die normalen Benutzerseiten (jetzt unter 'User')
+import HomePage from './pages/User/HomePage';
+import ProfilePage from './pages/User/ProfilePage';
+import ReservationsPage from './pages/User/ReservationsPage';
+import NewReservationPage from './pages/User/NewReservationPage';
+import AboutUsPage from './pages/User/AboutUs'; // Annahme, dass AboutUs auch eine Seite ist
+
+// Importe für die Admin-Seiten (jetzt unter 'Admin')
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import UserManagementPage from './pages/Admin/UserManagementPage';
+import CarManagementPage from './pages/Admin/CarManagementPage';
+import ReservationManagementPage from './pages/Admin/ReservationManagementPage';
+
+// Import der AdminRoute-Komponente zum Schutz von Admin-Routen
+import AdminRoute from './components/AdminRoute';
+
 function App() {
-    const { token, login, logout } = useAuth(); // Nutzung des Custom Hooks
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // State für den grundlegenden Login-Status
 
-    const navigate = useNavigate();
+    // Überprüft beim Laden der App, ob ein Authentifizierungstoken vorhanden ist
+    useEffect(() => {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            // Hier könnte man auch den Token validieren (z.B. Ablaufdatum prüfen),
+            // aber für den Anfang reicht die Anwesenheit des Tokens.
+            setIsLoggedIn(true);
+        }
+    }, []);
+
+    // Callback-Funktion für erfolgreichen Login
+    const handleLoginSuccess = (token) => {
+        localStorage.setItem('authToken', token); // Speichert den Token im Local Storage
+        setIsLoggedIn(true); // Aktualisiert den Login-Status
+    };
+
+    // Callback-Funktion für Logout
+    const handleLogout = () => {
+        localStorage.removeItem('authToken'); // Entfernt den Token aus dem Local Storage
+        setIsLoggedIn(false); // Aktualisiert den Login-Status
+    };
 
     return (
-        <div className="App">
-            <nav className="navbar">
-                <Link to="/" className="navbar-brand">DriveLink HSB</Link>
-                <div className="navbar-links">
-                    {token ? ( // Navigationslinks, wenn der Benutzer angemeldet ist
-                        <>
-                            <Link to="/home">Home</Link>
-                            <Link to="/profile">Profil</Link>
-                            <Link to="/reservations">Reservierungen</Link>
-                            {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
-                            <button onClick={() => { logout(); navigate('/login'); }} className="nav-button">Logout</button>
-                        </>
-                    ) : ( // Navigationslinks, wenn der Benutzer NICHT angemeldet ist
-                        <>
-                            <Link to="/home">Home</Link>
-                            <Link to="/login">Login</Link>
-                            <Link to="/register">Registrieren</Link>
-                        </>
-                    )}
-                </div>
-            </nav>
+        <Router>
+            {/* Die Navbar wird immer angezeigt und erhält den Login-Status und die Logout-Funktion */}
+            <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
 
-            <main>
-                <Routes>
-                    {/* Routen, die immer erreichbar sind */}
-                    {/* onLoginSuccess wird nun vom useAuth-Hook bereitgestellt */}
-                    <Route path="/login" element={<LoginPage onLoginSuccess={login} />} />
-                    <Route path="/register" element={<RegisterPage />} />
+            {/* Definition der Routen */}
+            <Routes>
+                {/* Öffentliche Routen (für Gäste und eingeloggte Benutzer sichtbar) */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about-us" element={<AboutUsPage />} /> {/* Beispiel für weitere öffentliche Seite */}
+                <Route path="/register" element={<RegisterPage />} />
+                {/* LoginPage erhält den onLoginSuccess-Callback */}
+                <Route path="/login" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
 
-                    {/* Geschützte Routen (nur zugänglich, wenn ein Token vorhanden ist) */}
-                    <Route path="/home" element={<PrivateRoute><HomePage /></PrivateRoute>} />
-                    <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-                    <Route path="/reservations" element={<PrivateRoute><ReservationsPage /></PrivateRoute>} />
-                    <Route path="/new-reservation" element={<PrivateRoute><NewReservationPage /></PrivateRoute>} />
+                {/* Geschützte Routen für eingeloggte Benutzer */}
+                {/* Wenn der Benutzer nicht eingeloggt ist (isLoggedIn = false), wird er zur Login-Seite umgeleitet. */}
+                {/* Outlet rendert die Child-Route, wenn die Bedingung erfüllt ist. */}
+                <Route element={isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />}>
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/reservations" element={<ReservationsPage />} />
+                    <Route path="/new-reservation" element={<NewReservationPage />} />
+                </Route>
 
-                    {/* Standard-Route für den Start oder unbekannte Pfade */}
-                    {/* Leitet zur Startseite um, wenn eingeloggt, sonst zur Login-Seite */}
-                    <Route path="/" element={token ? <HomePage /> : <LoginPage onLoginSuccess={login} />} />
-                    <Route path="*" element={<h2 className="content-container">Seite nicht gefunden (404)</h2>} />
-                </Routes>
-            </main>
-        </div>
+                {/* Geschützte Routen für Admins */}
+                {/* Die AdminRoute-Komponente prüft, ob der Benutzer eingeloggt ist UND die Rolle 'admin' hat. */}
+                {/* Wenn die Bedingungen nicht erfüllt sind, leitet AdminRoute selbst um. */}
+                <Route element={<AdminRoute />}>
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/users" element={<UserManagementPage />} />
+                    <Route path="/admin/cars" element={<CarManagementPage />} />
+                    <Route path="/admin/reservations" element={<ReservationManagementPage />} />
+                </Route>
+
+                {/* Fallback-Route für alle unbekannten Pfade */}
+                {/* Leitet zur Startseite um, wenn keine passende Route gefunden wird. */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </Router>
     );
 }
 
