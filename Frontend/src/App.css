@@ -57,9 +57,30 @@ body {
   cursor: pointer;
 }
 
+/* AKTIVER Menüpunkt (NavLink vergibt automatisch .active) */
+.navbar-links .active {
+  color: #14b77b;      /* Logo-Grün */
+  font-weight: 600;
+}
+
+/* Hover- und Active-Farben an Logo orientiert */
 .navbar-links a:hover,
 .navbar-links button:hover {
-  background-color: #f0f0f0;
+  color: #14b77b;
+  background-color: transparent;   /* wir ändern nur Schriftfarbe */
+}
+
+/* falls du NavLink nutzt (react-router-dom) */
+.navbar-links .active {
+  color: #007bff;
+  font-weight: 600;
+}
+
+/* Harmonische Schrift im Menü */
+.navbar-links a,
+.navbar-links button {
+  font-family: 'Inter', Arial, sans-serif;
+  letter-spacing: 0.4px;
 }
 
 .logo-img {
