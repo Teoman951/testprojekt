@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Definiere die Basis-URL hier, am besten außerhalb der Komponente oder in einer Konfigurationsdatei
+
+// Definiere die Basis-URL hier
 const API_BASE_URL = 'http://localhost:3001'; // Dein Backend-Server-Port
+
 function NewReservationPage() {
-    const [car, setCar] = useState('');
+    const [car, setCar] = useState(''); // Beachten: Dies sollte später carId sein, wenn Autos aus DB gewählt werden
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [error, setError] = useState('');
@@ -13,6 +15,7 @@ function NewReservationPage() {
         e.preventDefault();
         setError('');
 
+        // Frontend-Validierung
         if (!car || !startTime || !endTime) {
             setError('Bitte alle Felder ausfüllen.');
             return;
@@ -28,32 +31,42 @@ function NewReservationPage() {
             return;
         }
 
+        // Token aus dem Local Storage abrufen
         const token = localStorage.getItem('authToken');
         if (!token) {
+            // Wenn kein Token vorhanden ist, zur Login-Seite umleiten
             navigate('/login');
             return;
         }
 
         try {
-            const response = await fetch('/api/reservations', {
+            // HIER DIE KORREKTUR: Verwende API_BASE_URL im fetch-Aufruf
+            const response = await fetch(`${API_BASE_URL}/api/reservations`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    // JWT Token im Authorization-Header senden (wie vom Backend erwartet)
+                    'x-auth-token': token // Dein Backend erwartet 'x-auth-token'
+                    // Falls dein Backend 'Authorization: Bearer <token>' erwarten würde:
+                    // 'Authorization': `Bearer ${token}`
                 },
+                // Daten im JSON-Format senden
                 body: JSON.stringify({ car, startTime, endTime }),
             });
 
-            const data = await response.json();
+            const data = await response.json(); // Versuche, die Antwort als JSON zu parsen
 
             if (response.ok) {
-                alert('Reservierung erfolgreich erstellt!');
-                navigate('/reservations');
+                // Erfolgreiche Reservierung
+                alert('Reservierung erfolgreich erstellt!'); // Temporäre Erfolgsmeldung
+                navigate('/reservations'); // Zurück zur Reservierungsübersicht navigieren
             } else {
-                setError(data.message || 'Reservierung konnte nicht erstellt werden.');
+                // Fehlgeschlagene Reservierung (z.B. Validierungsfehler vom Backend)
+                setError(data.message || 'Reservierung konnte nicht erstellt werden. Unbekannter Fehler.');
             }
         } catch (err) {
-            setError('Netzwerkfehler beim Erstellen der Reservierung. Server nicht erreichbar?');
+            // Fehler bei der Netzwerkverbindung oder beim Parsen der Antwort
+            setError('Netzwerkfehler beim Erstellen der Reservierung. Server nicht erreichbar oder unerwartete Antwort.');
             console.error('New reservation error:', err);
         }
     };

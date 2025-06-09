@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 // Definiere die Basis-URL hier, am besten außerhalb der Komponente oder in einer Konfigurationsdatei
 const API_BASE_URL = 'http://localhost:3001'; // Dein Backend-Server-Port
+
 function ProfilePage() {
     const [profileData, setProfileData] = useState(null);
     const [error, setError] = useState('');
@@ -15,9 +17,11 @@ function ProfilePage() {
                 return;
             }
             try {
-                const response = await fetch('/api/members/me', {
+                // HIER DIE KORREKTUR: Verwende API_BASE_URL und die korrekte Route /api/users/me
+                const response = await fetch(`${API_BASE_URL}/api/users/me`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        // HIER DIE KORREKTUR: JWT Token im 'x-auth-token' Header senden
+                        'x-auth-token': token
                     }
                 });
                 const data = await response.json();
@@ -45,9 +49,10 @@ function ProfilePage() {
     return (
         <div className="content-container">
             <h2>Mein Profil</h2>
-            <p>Name: {profileData.name}</p>
+            {/* HIER DIE KORREKTUR: Anzeige von Benutzername und Rolle */}
+            <p>Benutzername: {profileData.username}</p>
             <p>E-Mail: {profileData.email}</p>
-            <p>Status: {profileData.membershipStatus}</p>
+            <p>Rolle: {profileData.role}</p>
             <button onClick={() => alert('Profil bearbeiten Funktion implementieren!')}>Profil bearbeiten</button>
         </div>
     );
