@@ -36,6 +36,7 @@ function App() {
                         </>
                     ) : ( // Navigationslinks, wenn der Benutzer NICHT angemeldet ist
                         <>
+                            <Link to="/home">Home</Link>
                             <Link to="/login">Login</Link>
                             <Link to="/register">Registrieren</Link>
                         </>
