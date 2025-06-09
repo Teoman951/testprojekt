@@ -20,47 +20,80 @@ body {
 }
 
 /* Navbar Styling */
+/* Modernisierte Navbar */
 .navbar {
-  background-color: #333;
+  background-color: white;
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
-  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .navbar-brand {
-  color: white;
+  display: flex;          /* Bild + Text in einer Linie */
+  align-items: center;
   text-decoration: none;
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #007bff;         /* Markenfarbe */
+  font-family: 'Inter', Arial, sans-serif;  /* falls du den Font einbindest */
 }
-
-.navbar-links a, .navbar-links button {
-  color: white;
+.navbar-links a,
+.navbar-links button {
+  color: #222;
   text-decoration: none;
-  margin-left: 15px;
-  padding: 8px 12px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
+  margin-left: 1rem;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
   background: none;
   border: none;
-  cursor: pointer;
   font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.navbar-links a:hover, .navbar-links button:hover {
-  background-color: #555;
+.navbar-links a:hover,
+.navbar-links button:hover {
+  background-color: #f0f0f0;
+}
+
+.logo-img {
+  height: 38px;          /* Höhe anpassen, damit es gut in die Leiste passt */
+  margin-right: 8px;     /* Abstand zwischen Bild und Text */
+  vertical-align: middle;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  /* Verlauf in Logo-Farben: Grün → Blau */
+  background: linear-gradient(90deg, #14b77b 0%, #0d8ad8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;   /* Firefox */
+  color: transparent;      /* Fallback */
+  font-family: 'Inter', Arial, sans-serif;
 }
 
 .nav-button {
-  background-color: #dc3545; /* Rot für Logout */
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
 }
 
 .nav-button:hover {
-  background-color: #c82333;
+  background-color: #d9363e;
 }
+
 
 /* Auth Container */
 .auth-container, .content-container {

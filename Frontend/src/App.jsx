@@ -25,7 +25,14 @@ function App() {
     return (
         <div className="App">
             <nav className="navbar">
-                <Link to="/" className="navbar-brand">MoveSmart HSB</Link>
+             <Link to="/" className="navbar-brand">
+                <img 
+                    src="/Logo Carsharing.jpg"
+                    alt="MoveSmart Logo"
+                    className="logo-img"
+                />
+                <span className="logo-text">MoveSmart</span>
+            </Link>
                 <div className="navbar-links">
                     {token ? ( // Navigationslinks, wenn der Benutzer angemeldet ist
                         <>
