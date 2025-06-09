@@ -10,6 +10,7 @@ import ProfilePage from './pages/User/ProfilePage.jsx'; // Hinzufügen von './'
 import ReservationsPage from './pages/User/ReservationsPage.jsx'; // Hinzufügen von './'
 import NewReservationPage from './pages/User/NewReservationPage.jsx'; // Hinzufügen von './'
 
+
 // Import der PrivateRoute Komponente - KORRIGIERTER PFAD
 import PrivateRoute from './components/PrivateRoute'; // Hinzufügen von './'
 
