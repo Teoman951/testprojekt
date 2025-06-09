@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
 import './App.css'; // Stellt sicher, dass diese Datei existiert oder entfernt den Import
 
 // Imports der ausgelagerten Komponenten - KORRIGIERTE PFADE
@@ -25,28 +25,28 @@ function App() {
     return (
         <div className="App">
             <nav className="navbar">
-             <Link to="/" className="navbar-brand">
+             <NavLink to="/" className="navbar-brand">
                 <img 
                     src="/Logo Carsharing.jpg"
                     alt="MoveSmart Logo"
                     className="logo-img"
                 />
                 <span className="logo-text">MoveSmart</span>
-            </Link>
+            </NavLink>
                 <div className="navbar-links">
                     {token ? ( // Navigationslinks, wenn der Benutzer angemeldet ist
                         <>
-                            <Link to="/home">Home</Link>
-                            <Link to="/profile">Profil</Link>
-                            <Link to="/reservations">Reservierungen</Link>
+                            <NavLink to="/home">Home</NavLink>
+                            <NavLink to="/profile">Profil</NavLink>
+                            <NavLink to="/reservations">Reservierungen</NavLink>
                             {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
                             <button onClick={() => { logout(); navigate('/login'); }} className="nav-button">Logout</button>
                         </>
                     ) : ( // Navigationslinks, wenn der Benutzer NICHT angemeldet ist
                         <>
-                            <Link to="/home">Home</Link>
-                            <Link to="/login">Login</Link>
-                            <Link to="/register">Registrieren</Link>
+                            <NavLink to="/home">Home</NavLink>
+                            <NavLink to="/login">Login</NavLink>
+                            <NavLink to="/register">Registrieren</NavLink>
                         </>
                     )}
                 </div>
