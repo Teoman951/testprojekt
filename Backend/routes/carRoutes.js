@@ -8,7 +8,8 @@ const router = Router();
 router.post('/', authMiddleware, authorizeRoles('admin'), createCar);
 
 // Alle Fahrzeuge abrufen (jeder Authentifizierte)
-router.get('/', authMiddleware, getAllCars);
+//router.get('/', authMiddleware, getAllCars);
+router.get('/', getAllCars);
 
 // Einzelnes Fahrzeug abrufen (jeder Authentifizierte)
 router.get('/:id', authMiddleware, getCarById);
