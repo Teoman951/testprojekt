@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+// Definiere die Basis-URL hier, am besten außerhalb der Komponente oder in einer Konfigurationsdatei
+const API_BASE_URL = 'http://localhost:3001'; // Dein Backend-Server-Port
+
 function LoginPage({ onLoginSuccess }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -10,24 +13,37 @@ function LoginPage({ onLoginSuccess }) {
         e.preventDefault();
         setError('');
 
+        // Grundlegende Validierung
+        if (!email || !password) {
+            setError('Bitte E-Mail und Passwort eingeben.');
+            return;
+        }
+
         try {
-            const response = await fetch('/api/auth/login', {
+            // Die fetch-Anfrage verwendet jetzt die definierte API_BASE_URL
+            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                // Sende E-Mail und Passwort im Body
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
+            const data = await response.json(); // Versuche, die Antwort als JSON zu parsen
 
             if (response.ok) {
-                onLoginSuccess(data.token);
+                // Login erfolgreich: Token speichern und onLoginSuccess aufrufen
+                // Backend sollte hier { message: '...', token: '...', user: {...} } zurückgeben
+                alert('Login erfolgreich!'); // Temporäre Erfolgsmeldung
+                onLoginSuccess(data.token); // Der onLoginSuccess-Callback in App.jsx wird aufgerufen
             } else {
+                // Login fehlgeschlagen: Fehlermeldung vom Backend anzeigen
                 setError(data.message || 'Login fehlgeschlagen. Bitte versuchen Sie es erneut.');
             }
         } catch (err) {
-            setError('Netzwerkfehler: Server nicht erreichbar oder Verbindungsproblem.');
+            // Netzwerkfehler oder unerwartete Antwortstruktur
+            setError('Netzwerkfehler: Server nicht erreichbar oder Verbindungsproblem. Oder unerwartete Server-Antwort.');
             console.error('Login Error:', err);
         }
     };
