@@ -10,6 +10,7 @@ import ProfilePage from "./pages/User/ProfilePage.jsx"; // Hinzufügen von './'
 import ReservationsPage from "./pages/User/ReservationsPage.jsx"; // Hinzufügen von './'
 import NewReservationPage from "./pages/User/NewReservationPage.jsx"; // Hinzufügen von './'
 import AboutUsPage from "./pages/User/AboutUsPage.jsx"; // Hinzufügen von './'
+import RatesPage from "./pages/User/RatesPage.jsx"; // Hinzufügen von './'
 
 // Import der PrivateRoute Komponente - KORRIGIERTER PFAD
 import PrivateRoute from "./components/PrivateRoute"; // Hinzufügen von './'
@@ -41,6 +42,7 @@ function App() {
               <NavLink to="/profile">Profil</NavLink>
               <NavLink to="/reservations">Reservierungen</NavLink>
               <NavLink to="/aboutus">Über Uns</NavLink>
+                <NavLink to="/RatesPage">Tarife</NavLink>
               {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
               <button
                 onClick={() => {

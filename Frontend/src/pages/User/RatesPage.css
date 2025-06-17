@@ -1,0 +1,43 @@
+.content-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: sans-serif;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.rate-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.rate-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    width: 280px;
+    transition: transform 0.2s ease;
+}
+
+.rate-card:hover {
+    transform: translateY(-5px);
+}
+
+.rate-card h3 {
+    margin-top: 0;
+    color: #2563eb;
+}
+
+.rate-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #10b981;
+    margin-top: 1rem;
+}
