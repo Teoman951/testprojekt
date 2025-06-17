@@ -1,43 +1,62 @@
-.content-container {
-    max-width: 900px;
-    margin: 0 auto;
+.rates-container {
     padding: 2rem;
-    font-family: sans-serif;
+    text-align: center;
 }
 
-h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-.rate-grid {
+.rate-cards {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap; /* macht's mobilfreundlich */
     margin-top: 2rem;
 }
 
 .rate-card {
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    border: 2px solid #d0d0d0;
+    border-radius: 1rem;
     padding: 1.5rem;
-    width: 280px;
+    width: 250px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease;
 }
 
 .rate-card:hover {
-    transform: translateY(-5px);
+    transform: scale(1.05);
 }
 
 .rate-card h3 {
-    margin-top: 0;
-    color: #2563eb;
+    margin-bottom: 0.5rem;
+    color: #2b2b2b;
 }
 
 .rate-price {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #10b981;
-    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.rate-card ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.rate-card li {
+    margin: 0.3rem 0;
+}
+
+.select-button {
+    background-color: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.select-button:hover {
+    background-color: #0056b3;
 }

@@ -42,7 +42,7 @@ function App() {
               <NavLink to="/profile">Profil</NavLink>
               <NavLink to="/reservations">Reservierungen</NavLink>
               <NavLink to="/aboutus">Über Uns</NavLink>
-                <NavLink to="/RatesPage">Tarife</NavLink>
+                <NavLink to="/rates">Tarife</NavLink>
               {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
               <button
                 onClick={() => {
@@ -108,6 +108,7 @@ function App() {
               </PrivateRoute>
             }
           />
+            <Route path="/rates" element={<RatesPage />} />
           {/* Standard-Route für den Start oder unbekannte Pfade */}
           {/* Leitet zur Startseite um, wenn eingeloggt, sonst zur Login-Seite */}
           <Route path="/" element={<HomePage />} />

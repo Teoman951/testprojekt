@@ -1,38 +1,39 @@
-import React from 'react';
-import './RatesPage.css'; // Deine CSS-Datei
+import React from "react";
+import "./RatesPage.css";
 
 function RatesPage() {
-    const tarife = [
+    const rates = [
         {
-            name: "Basis-Tarif",
-            preis: "0,25 € / min",
-            beschreibung: "Ideal für spontane Fahrten ohne Grundgebühr."
+            title: "Basis Tarif",
+            price: "0,20 € / Minute",
+            features: ["Keine Grundgebühr", "Abrechnung pro Minute", "Haftpflicht inkl."]
         },
         {
-            name: "Komfort-Tarif",
-            preis: "0,20 € / min",
-            beschreibung: "Für Vielfahrer mit monatlicher Grundgebühr."
+            title: "Flex Tarif",
+            price: "4,99 € / Monat",
+            features: ["0,15 € / Minute", "Reservierung bis 30 Min. kostenlos", "24/7 Support"]
         },
         {
-            name: "Tages-Tarif",
-            preis: "39 € / Tag",
-            beschreibung: "Perfekt für Tagesausflüge mit Fixpreis."
+            title: "Pro Tarif",
+            price: "19,99 € / Monat",
+            features: ["0,10 € / Minute", "Bevorzugter Zugang", "Premiumfahrzeuge inkl."]
         }
     ];
 
     return (
-        <div className="content-container">
+        <div className="rates-container">
             <h2>Unsere Tarife</h2>
-            <p>
-                Bei MoveSmart bieten wir flexible Preismodelle für jeden Bedarf – ob spontane Kurzfahrt oder Tagesausflug.
-            </p>
-
-            <div className="rate-grid">
-                {tarife.map((tarif, index) => (
+            <div className="rate-cards">
+                {rates.map((rate, index) => (
                     <div className="rate-card" key={index}>
-                        <h3>{tarif.name}</h3>
-                        <p>{tarif.beschreibung}</p>
-                        <div className="rate-price">{tarif.preis}</div>
+                        <h3>{rate.title}</h3>
+                        <p className="rate-price">{rate.price}</p>
+                        <ul>
+                            {rate.features.map((feature, i) => (
+                                <li key={i}>✅ {feature}</li>
+                            ))}
+                        </ul>
+                        <button className="select-button">Jetzt wählen</button>
                     </div>
                 ))}
             </div>
