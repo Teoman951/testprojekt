@@ -1,7 +1,7 @@
 // controllers/rateController.js
-import Rate from '../models/Rates.js'; // Stelle sicher, dass dies dein Sequelize-Modell ist!
+import Rates from '../models/Rates.js'; // Stelle sicher, dass dies dein Sequelize-Modell ist!
 
-// Neue Rate erstellen (z.B. nur Admin erlaubt)
+// Neue Rates erstellen (z.B. nur Admin erlaubt)
 export const createRate = async (req, res) => {
     try {
         const { name, pricePerHour, description } = req.body;
@@ -15,7 +15,7 @@ export const createRate = async (req, res) => {
             return res.status(400).json({ message: 'Preis pro Stunde muss eine gültige Zahl sein.' });
         }
 
-        const newRate = await Rate.create({
+        const newRate = await Rates.create({
             name,
             pricePerHour: parseFloat(pricePerHour), // Stelle sicher, dass es eine Zahl ist
             description,
@@ -36,7 +36,7 @@ export const createRate = async (req, res) => {
 export const getAllRates = async (req, res) => {
     try {
         // findAll ist die korrekte Methode in Sequelize
-        const rates = await Rate.findAll();
+        const rates = await Rates.findAll();
         res.json(rates);
     } catch (error) {
         console.error('getAllRates error:', error);
@@ -47,7 +47,7 @@ export const getAllRates = async (req, res) => {
 // Einzelnen Tarif abrufen
 export const getRateById = async (req, res) => {
     try {
-        const rate = await Rate.findByPk(req.params.id); // findByPk ist korrekt
+        const rate = await Rates.findByPk(req.params.id); // findByPk ist korrekt
         if (!rate) {
             return res.status(404).json({ message: 'Tarif nicht gefunden.' });
         }
@@ -64,7 +64,7 @@ export const updateRate = async (req, res) => {
         const { id } = req.params;
         const { name, pricePerHour, description } = req.body;
 
-        const rate = await Rate.findByPk(id);
+        const rate = await Rates.findByPk(id);
         if (!rate) {
             return res.status(404).json({ message: 'Tarif nicht gefunden.' });
         }
@@ -98,7 +98,7 @@ export const updateRate = async (req, res) => {
 export const deleteRate = async (req, res) => {
     try {
         const { id } = req.params;
-        const rate = await Rate.findByPk(id); // findByPk ist korrekt
+        const rate = await Rates.findByPk(id); // findByPk ist korrekt
         if (!rate) {
             return res.status(404).json({ message: 'Tarif nicht gefunden.' });
         }
