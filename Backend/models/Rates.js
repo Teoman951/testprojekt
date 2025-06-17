@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import {sequelize} from '../config/database.js'; // Pfad zu deiner Sequelize-Instanz
 
-const Rate = sequelize.define('Rates', {
+const Rates = sequelize.define('Rates', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -26,4 +26,4 @@ const Rate = sequelize.define('Rates', {
     tableName: 'rates', // Optional: Der tatsächliche Tabellenname in der Datenbank
 });
 
-export default Rate;
+export default Rates;
