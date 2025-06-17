@@ -20,6 +20,16 @@ function RatesPage() {
         }
     ];
 
+    // Neue Funktion für die Tarifauswahl
+    const handleSelectRate = (rateTitle) => {
+        console.log(`Der Tarif "${rateTitle}" wurde ausgewählt.`);
+        // Hier kommt die eigentliche Logik hin
+        // Zum Beispiel:
+        // - Weiterleitung zu einer Registrierungsseite mit dem ausgewählten Tarif als Parameter
+        // - Öffnen eines Bestätigungs-Modals
+        // - Speichern des Tarifs im globalen Zustand (z.B. Context API, Redux)
+    };
+
     return (
         <div className="rates-container">
             <h2>Unsere Tarife</h2>
@@ -33,7 +43,13 @@ function RatesPage() {
                                 <li key={i}>✅ {feature}</li>
                             ))}
                         </ul>
-                        <button className="select-button">Jetzt wählen</button>
+                        {/* onClick-Handler zum Button hinzugefügt */}
+                        <button
+                            className="select-button"
+                            onClick={() => handleSelectRate(rate.title)}
+                        >
+                            Jetzt wählen
+                        </button>
                     </div>
                 ))}
             </div>

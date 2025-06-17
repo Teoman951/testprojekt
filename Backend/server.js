@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import carRoutes from './routes/carRoutes.js';
 import reservationRoutes from './routes/reservationRoutes.js';
+import ratesRoutes from "./routes/ratesRoutes.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/reservations', reservationRoutes);
+app.use('/api/rates', ratesRoutes);
 
 // Standard-Route
 app.get('/', (req, res) => {
