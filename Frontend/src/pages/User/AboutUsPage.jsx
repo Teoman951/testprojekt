@@ -12,7 +12,7 @@ function AboutUs() {
             </p>
             <p>
                 Gegründet in 2025 aus dem Wunsch heraus, Mobilität zugänglicher und nachhaltiger zu machen,
-                sind wir heute in über 3 Städten in Deutschland vertreten
+                sind wir heute in über 6 Städten in Deutschland vertreten
             </p>
 
 
@@ -41,7 +41,6 @@ function AboutUs() {
                     <h4>bla bla bla</h4>
                     <p>Geschäftsführer</p>
                 </div>
-                {/* Weitere Teammitglieder hier */}
             </div>
             <p>
 
