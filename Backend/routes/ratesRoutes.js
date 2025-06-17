@@ -6,7 +6,7 @@ import {
     getRateById,
     updateRate,
     deleteRate
-} from '../controllers/rateController.js'; // Pfad anpassen
+} from '../controllers/ratesController.js'; // Pfad anpassen
 
 const router = express.Router();
 
