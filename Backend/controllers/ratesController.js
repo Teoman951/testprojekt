@@ -1,5 +1,5 @@
 // controllers/rateController.js
-import Rate from '../models/Rate.js'; // Stelle sicher, dass dies dein Sequelize-Modell ist!
+import Rate from '../models/Rates.js'; // Stelle sicher, dass dies dein Sequelize-Modell ist!
 
 // Neue Rate erstellen (z.B. nur Admin erlaubt)
 export const createRate = async (req, res) => {

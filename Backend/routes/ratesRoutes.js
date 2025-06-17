@@ -1,14 +1,16 @@
 // routes/rateRoutes.js
-import express from 'express';
+import { Router } from 'express';
+import authMiddleware, { authorizeRoles } from '../middleware/authMiddleware.js';
+
 import {
     createRate,
     getAllRates,
     getRateById,
     updateRate,
     deleteRate
-} from '../controllers/rateController.js'; // Pfad anpassen
+} from '../controllers/ratesController.js'; // Pfad anpassen
 
-const router = express.Router();
+const router = Router();
 
 router.post('/', createRate);
 router.get('/', getAllRates);

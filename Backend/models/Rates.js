@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js'; // Pfad zu deiner Sequelize-Instanz
+import {sequelize} from '../config/database.js'; // Pfad zu deiner Sequelize-Instanz
 
-const Rate = sequelize.define('Rate', {
+const Rate = sequelize.define('Rates', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
