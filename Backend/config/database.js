@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: path.join(__dirname, '..', process.env.DB_STORAGE),
+    storage: process.env.DB_STORAGE,
     logging: false, // Setze auf true, um SQL-Queries in der Konsole zu sehen
 });
 

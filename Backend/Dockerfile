@@ -5,13 +5,20 @@
 
 FROM node:20-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
+# Abhängigkeiten separat cachen
 COPY package*.json ./
 
 RUN npm install --legacy-peer-deps
 
+# Quellcode kopieren
 COPY . .
 
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Port-Dokumentation
+EXPOSE 3001
+
+# Standard-Start
+CMD ["npm", "start"]
+
+
