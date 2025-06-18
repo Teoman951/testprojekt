@@ -15,10 +15,8 @@ RUN npm install --legacy-peer-deps
 # Quellcode kopieren
 COPY . .
 
-# Port-Dokumentation
-EXPOSE 3001
-
 # Standard-Start
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
+
 
 

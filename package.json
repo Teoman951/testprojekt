@@ -3,5 +3,13 @@
     "3": "^2.1.0",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
+  },
+
+  "scripts": {
+    "dev:docker": "docker compose -f docker-compose.dev.yml up --build",
+    "dev:start": "docker compose -f docker-compose.dev.yml up",
+    "dev:stop": "docker compose -f docker-compose.dev.yml down",
+    "prod:start": "docker compose up -d",
+    "prod:stop": "docker compose down"
   }
 }
