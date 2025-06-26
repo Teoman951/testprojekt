@@ -21,21 +21,6 @@ export const getMe = async (req, res) => {
     }
 };
 
-// Controller-Funktion zum Abrufen aller Benutzer (Admin-Berechtigung erforderlich)
-export const getAllUsers = async (req, res) => {
-    try {
-        // Ruft alle Benutzer ab und schließt Passwörter aus
-        // Die Rollenprüfung für Admin erfolgt bereits in der Route (userRoutes.js)
-        const users = await User.findAll({
-            attributes: { exclude: ['password'] }
-        });
-        res.json(users);
-    } catch (error) {
-        console.error('Get all users error:', error.message);
-        res.status(500).send('Server error');
-    }
-};
-
 // Controller-Funktion zum Aktualisieren eines Benutzers
 export const updateUser = async (req, res) => {
     const { id } = req.params; // Die ID des zu aktualisierenden Benutzers kommt aus der URL
@@ -84,23 +69,32 @@ export const updateUser = async (req, res) => {
 
 // Controller-Funktion zum Löschen eines Benutzers
 export const deleteUser = async (req, res) => {
-    const { id } = req.params; // ID des zu löschenden Benutzers kommt aus der URL
+    const {id} = req.params; // ID des zu löschenden Benutzers kommt aus der URL
 
     try {
         const user = await User.findByPk(id);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({message: 'User not found'});
         }
 
         // Rollenprüfung: Nur Admin oder der Benutzer selbst darf sich löschen
         if (req.user.role !== 'admin' && req.user.id !== parseInt(id)) {
-            return res.status(403).json({ message: 'Not authorized to delete this user' });
+            return res.status(403).json({message: 'Not authorized to delete this user'});
         }
 
         await user.destroy(); // Löscht den Benutzer aus der Datenbank
-        res.json({ message: 'User deleted successfully' });
+        res.json({message: 'User deleted successfully'});
     } catch (error) {
         console.error('Delete user error:', error.message);
         res.status(500).send('Server error');
     }
+}
+    export const getAllUsers = async (req, res) => {
+        try {
+            const users = await User.findAll({ attributes: { exclude: ['password'] } });
+            res.json(users);
+        } catch (error) {
+            console.error('Fehler beim Abrufen der Benutzer:', error);
+            res.status(500).json({ message: 'Serverfehler beim Laden der Benutzer' });
+        }
 };

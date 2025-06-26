@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authMiddleware, { authorizeRoles } from '../middleware/authMiddleware.js';
 import { getMe, getAllUsers, updateUser, deleteUser } from '../controllers/userController.js';
 
+
 const router = Router();
 
 // Geschützte Route: Aktuellen Benutzer abrufen

@@ -10,7 +10,14 @@ import ProfilePage from "./pages/User/ProfilePage.jsx"; // Hinzufügen von './'
 import ReservationsPage from "./pages/User/ReservationsPage.jsx"; // Hinzufügen von './'
 import NewReservationPage from "./pages/User/NewReservationPage.jsx"; // Hinzufügen von './'
 import AboutUsPage from "./pages/User/AboutUsPage.jsx"; // Hinzufügen von './'
-import RatesPage from "./pages/User/RatesPage.jsx"; // Hinzufügen von './'
+import RatesPage from "./pages/User/RatesPage.jsx"; // Hinzufügen von './';
+import AdminDashboard from "./pages/Admin/AdminDashboardPage.jsx"; // Hinzufügen von './';
+import UserManagement from "./pages/Admin/UserManagementPage.jsx"; // Hinzufügen von './';
+import CarManagement from "./pages/Admin/CarManagementPage.jsx"; // Hinzufügen von './';
+import ReservationManagement from "./pages/Admin/ReservationManagementPage.jsx"; // Hinzufügen von './';
+
+// Import der AdminRoute Komponente - KORRIGIERTER PFAD
+import AdminRoute from "./components/AdminRoute"; // Hinzufügen von './';
 
 // Import der PrivateRoute Komponente - KORRIGIERTER PFAD
 import PrivateRoute from "./components/PrivateRoute"; // Hinzufügen von './'
@@ -108,6 +115,13 @@ function App() {
               </PrivateRoute>
             }
           />
+            <Route path="/admin" element={<AdminRoute />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="cars" element={<CarManagement />} />
+                <Route path="reservations" element={<ReservationManagement />}
+                />
+            </Route>
             <Route path="/rates" element={<RatesPage />} />
           {/* Standard-Route für den Start oder unbekannte Pfade */}
           {/* Leitet zur Startseite um, wenn eingeloggt, sonst zur Login-Seite */}
