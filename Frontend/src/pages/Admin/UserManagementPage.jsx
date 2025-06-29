@@ -5,14 +5,24 @@ const API_BASE_URL = 'http://localhost:3001';
 
 function UserManagementPage() {
     const [users, setUsers] = useState([]);
+    const [rates, setRates] = useState([]); // NEU: State für alle verfügbaren Tarife (Rates)
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [editUserId, setEditUserId] = useState(null); // ID des Benutzers, der gerade bearbeitet wird
     const [editUsername, setEditUsername] = useState('');
     const [editEmail, setEditEmail] = useState('');
     const [editRole, setEditRole] = useState('');
+    const [editRateId, setEditRateId] = useState(''); // NEU: State für die bearbeitete Tarif-ID
+
+    // States für Erstellungsformular (unverändert)
+    const [newUsername, setNewUsername] = useState('');
+    const [newEmail, setNewEmail] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [newRole, setNewRole] = useState('user');
+
     const navigate = useNavigate();
 
+    // Funktion zum Abrufen aller Benutzer (inkl. zugewiesener Tarif)
     const fetchUsers = async () => {
         setLoading(true);
         setError('');
@@ -48,8 +58,40 @@ function UserManagementPage() {
         }
     };
 
+    // NEU: Funktion zum Abrufen aller Tarife (Rates)
+    const fetchRates = async () => {
+        setError(''); // Setze Fehler zurück
+        const token = localStorage.getItem('authToken'); // Benötigt Token, da Routen aktuell nicht öffentlich sind
+        if (!token) {
+            // Optional: Handle, if rates should be visible to non-logged-in users (FA-9)
+            // For now, we assume admin is logged in to fetch rates.
+            console.warn('No token found when fetching rates. Rates might not load for non-authenticated users.');
+            return;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/rates`, {
+                headers: {
+                    'x-auth-token': token, // Benötigt Token, da /api/rates standardmäßig geschützt sein könnte
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setRates(data);
+            } else {
+                setError(data.message || 'Tarife konnten nicht geladen werden.');
+                // console.error('Rates fetch error:', data.message);
+            }
+        } catch (err) {
+            setError('Netzwerkfehler beim Laden der Tarife.');
+            console.error('Rates fetch error:', err);
+        }
+    };
+
+    // useEffect zum Initialladen von Benutzern und Tarifen
     useEffect(() => {
         fetchUsers();
+        fetchRates(); // Rufe Tarife beim Laden der Komponente ab
     }, [navigate]);
 
     const handleDelete = async (id) => {
@@ -89,6 +131,9 @@ function UserManagementPage() {
         setEditUsername(user.username);
         setEditEmail(user.email);
         setEditRole(user.role);
+        // NEU: Setze editRateId basierend auf dem zugewiesenen Tarif des Benutzers
+        // Wenn user.AssignedRate existiert, nimm dessen ID, sonst null oder leeren String
+        setEditRateId(user.AssignedRate ? user.AssignedRate.id.toString() : '');
     };
 
     const handleCancelEdit = () => {
@@ -96,6 +141,7 @@ function UserManagementPage() {
         setEditUsername('');
         setEditEmail('');
         setEditRole('');
+        setEditRateId(''); // Zurücksetzen der bearbeiteten Rate-ID
         setError('');
     };
 
@@ -115,7 +161,13 @@ function UserManagementPage() {
                     'Content-Type': 'application/json',
                     'x-auth-token': token
                 },
-                body: JSON.stringify({ username: editUsername, email: editEmail, role: editRole }),
+                // NEU: rateId an das Backend senden
+                body: JSON.stringify({
+                    username: editUsername,
+                    email: editEmail,
+                    role: editRole,
+                    rateId: editRateId === '' ? null : parseInt(editRateId) // Sende null, wenn kein Tarif ausgewählt ist
+                }),
             });
 
             const data = await response.json();
@@ -133,12 +185,6 @@ function UserManagementPage() {
         }
     };
 
-    // Rudimentäre "Benutzer erstellen" Funktionalität (könnte in eigene Komponente ausgelagert werden)
-    const [newUsername, setNewUsername] = useState('');
-    const [newEmail, setNewEmail] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [newRole, setNewRole] = useState('user'); // Standardrolle 'user'
-
     const handleCreateUser = async (e) => {
         e.preventDefault();
         setError('');
@@ -154,14 +200,6 @@ function UserManagementPage() {
         }
 
         try {
-            // Achtung: Hier wird die 'register' Route verwendet, die die Rolle 'user' setzt.
-            // Um die Rolle direkt zu setzen, bräuchtest du eine dedizierte Admin-Funktion im Backend
-            // oder du passt den register-Controller an, um die Rolle aus dem Body zu akzeptieren,
-            // wenn der Request von einem Admin kommt (was aktuell nicht der Fall ist).
-            // Für Admin-Erstellung würde man eher einen 'POST /api/users' Endpunkt haben.
-            // Die aktuelle register-Route im Backend (authController) setzt die Rolle immer auf 'user'.
-            // Für den Test lassen wir es hier aber die Register-Route aufrufen,
-            // und danach kann man die Rolle per Update ändern.
             const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
@@ -171,7 +209,6 @@ function UserManagementPage() {
                     username: newUsername,
                     email: newEmail,
                     password: newPassword,
-                    // role: newRole // 'register' route ignoriert dies
                 }),
             });
 
@@ -239,6 +276,7 @@ function UserManagementPage() {
                         <th style={tableHeaderStyle}>Benutzername</th>
                         <th style={tableHeaderStyle}>E-Mail</th>
                         <th style={tableHeaderStyle}>Rolle</th>
+                        <th style={tableHeaderStyle}>Tarif</th> {/* NEU: Spalte für Tarif */}
                         <th style={tableHeaderStyle}>Aktionen</th>
                     </tr>
                     </thead>
@@ -247,13 +285,22 @@ function UserManagementPage() {
                         <tr key={user.id} style={{ borderBottom: '1px solid #ddd' }}>
                             {editUserId === user.id ? (
                                 // Bearbeitungsmodus
-                                <td colSpan="5">
-                                    <form onSubmit={handleUpdate} style={{ display: 'flex', gap: '10px', alignItems: 'center', padding: '10px 0' }}>
-                                        <input type="text" value={editUsername} onChange={(e) => setEditUsername(e.target.value)} required style={inputStyle} />
-                                        <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} required style={inputStyle} />
+                                <td colSpan="6"> {/* colSpan um 1 erhöht */}
+                                    <form onSubmit={handleUpdate} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', padding: '10px 0' }}>
+                                        {/* ID ist nicht bearbeitbar, aber hilfreich für Kontext */}
+                                        <span style={{...inputStyle, border: 'none'}}>{user.id}</span>
+                                        <input type="text" value={editUsername} onChange={(e) => setEditUsername(e.target.value)} required style={inputStyle} placeholder="Benutzername" />
+                                        <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} required style={inputStyle} placeholder="E-Mail" />
                                         <select value={editRole} onChange={(e) => setEditRole(e.target.value)} style={selectStyle}>
                                             <option value="user">user</option>
                                             <option value="admin">admin</option>
+                                        </select>
+                                        {/* NEU: Dropdown für Tarife */}
+                                        <select value={editRateId} onChange={(e) => setEditRateId(e.target.value)} style={selectStyle}>
+                                            <option value="">Kein Tarif zugewiesen</option> {/* Option für keinen Tarif */}
+                                            {rates.map(rate => (
+                                                <option key={rate.id} value={rate.id}>{rate.name} ({rate.pricePerHour}€/Std)</option>
+                                            ))}
                                         </select>
                                         <button type="submit" style={{ backgroundColor: '#007bff', color: 'white', padding: '8px 12px', borderRadius: '5px', border: 'none' }}>Speichern</button>
                                         <button type="button" onClick={handleCancelEdit} style={{ backgroundColor: '#6c757d', color: 'white', padding: '8px 12px', borderRadius: '5px', border: 'none' }}>Abbrechen</button>
@@ -266,6 +313,7 @@ function UserManagementPage() {
                                     <td style={tableCellStyle}>{user.username}</td>
                                     <td style={tableCellStyle}>{user.email}</td>
                                     <td style={tableCellStyle}>{user.role}</td>
+                                    <td style={tableCellStyle}>{user.AssignedRate ? user.AssignedRate.name : 'Kein Tarif'}</td> {/* NEU: Anzeige des Tarifnamens */}
                                     <td style={tableCellStyle}>
                                         <button onClick={() => handleEditClick(user)} style={{ backgroundColor: '#ffc107', color: 'black', padding: '5px 10px', borderRadius: '5px', border: 'none', marginRight: '5px' }}>Bearbeiten</button>
                                         <button onClick={() => handleDelete(user.id)} style={{ backgroundColor: '#dc3545', color: 'white', padding: '5px 10px', borderRadius: '5px', border: 'none' }}>Löschen</button>
@@ -291,6 +339,7 @@ const tableHeaderStyle = {
 const tableCellStyle = {
     padding: '8px',
     borderBottom: '1px solid #ddd',
+    verticalAlign: 'top',
 };
 
 const inputStyle = {
@@ -298,9 +347,10 @@ const inputStyle = {
     border: '1px solid #ccc',
     borderRadius: '4px',
     flex: '1',
+    minWidth: '100px', // Damit Felder nicht zu klein werden
 };
 
-const selectStyle = {
+const selectStyle = { // NEU: Style für Select-Element
     padding: '8px',
     border: '1px solid #ccc',
     borderRadius: '4px',
