@@ -2,6 +2,8 @@ import React from "react";
 import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
 import "./App.css"; // Stellt sicher, dass diese Datei existiert oder entfernt den Import
 
+
+
 // Imports der ausgelagerten Komponenten - KORRIGIERTE PFADE
 import LoginPage from "./pages/Auth/LoginPage"; // Hinzufügen von './'
 import RegisterPage from "./pages/Auth/RegisterPage"; // Hinzufügen von './'
@@ -11,10 +13,12 @@ import ReservationsPage from "./pages/User/ReservationsPage.jsx"; // Hinzufügen
 import NewReservationPage from "./pages/User/NewReservationPage.jsx"; // Hinzufügen von './'
 import AboutUsPage from "./pages/User/AboutUsPage.jsx"; // Hinzufügen von './'
 import RatesPage from "./pages/User/RatesPage.jsx"; // Hinzufügen von './';
-import AdminDashboard from "./pages/Admin/AdminDashboardPage.jsx"; // Hinzufügen von './';
-import UserManagement from "./pages/Admin/UserManagementPage.jsx"; // Hinzufügen von './';
-import CarManagement from "./pages/Admin/CarManagementPage.jsx"; // Hinzufügen von './';
-import ReservationManagement from "./pages/Admin/ReservationManagementPage.jsx"; // Hinzufügen von './';
+import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.jsx"; // Hinzufügen von './';
+import UserManagementPage from "./pages/Admin/UserManagementPage.jsx"; // Hinzufügen von './';
+import CarManagementPage from "./pages/Admin/CarManagementPage.jsx"; // Hinzufügen von './';
+import ReservationManagementPage from "./pages/Admin/ReservationManagementPage.jsx"; // Hinzufügen von './';
+
+
 
 // Import der AdminRoute Komponente - KORRIGIERTER PFAD
 import AdminRoute from "./components/AdminRoute"; // Hinzufügen von './';
@@ -24,14 +28,15 @@ import PrivateRoute from "./components/PrivateRoute"; // Hinzufügen von './'
 
 // Import des Auth Hooks - KORRIGIERTER PFAD
 import useAuth from "./hooks/useAuth";
-import AboutUs from "./pages/User/AboutUsPage.jsx"; // Hinzufügen von './'
+import AboutUs from "./pages/User/AboutUsPage.jsx";
+
 // --- Hauptkomponente der React-Anwendung ---
 function App() {
-  const { token, login, logout } = useAuth(); // Nutzung des Custom Hooks
+  const { token, userRole, login, logout } = useAuth(); // Nutzung des Custom Hooks
+    const navigate = useNavigate();
 
-  const navigate = useNavigate();
 
-  return (
+    return (
     <div className="App">
       <nav className="navbar">
         <NavLink to="/" className="navbar-brand">
@@ -50,6 +55,16 @@ function App() {
               <NavLink to="/reservations">Reservierungen</NavLink>
               <NavLink to="/aboutus">Über Uns</NavLink>
                 <NavLink to="/rates">Tarife</NavLink>
+
+                {/*Navigationslinks, wenn der Admin eingeloggt ist */}
+                {userRole === "admin" && (
+                    <>
+                        <NavLink to="/admin">Admin Dashboard</NavLink>
+                        <NavLink to="/admin/users">Benutzerverwaltung</NavLink>
+                        <NavLink to="/admin/cars">Fahrzeugverwaltung</NavLink>
+                        <NavLink to="/admin/reservations">Reservierungen</NavLink>
+                    </>
+                )}
               {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
               <button
                 onClick={() => {
@@ -116,11 +131,10 @@ function App() {
             }
           />
             <Route path="/admin" element={<AdminRoute />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="users" element={<UserManagement />} />
-                <Route path="cars" element={<CarManagement />} />
-                <Route path="reservations" element={<ReservationManagement />}
-                />
+                <Route index element={<AdminDashboardPage />} />
+                <Route path="users" element={<UserManagementPage />} />
+                <Route path="cars" element={<CarManagementPage />} />
+                <Route path="reservations" element={<ReservationManagementPage />} />
             </Route>
             <Route path="/rates" element={<RatesPage />} />
           {/* Standard-Route für den Start oder unbekannte Pfade */}
