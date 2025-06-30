@@ -54,15 +54,12 @@ function App() {
               <NavLink to="/profile">Profil</NavLink>
               <NavLink to="/reservations">Reservierungen</NavLink>
               <NavLink to="/aboutus">Über Uns</NavLink>
-                <NavLink to="/rates">Tarife</NavLink>
+                {userRole !== "admin" && <NavLink to="/rates">Tarife</NavLink>}
 
                 {/*Navigationslinks, wenn der Admin eingeloggt ist */}
                 {userRole === "admin" && (
                     <>
                         <NavLink to="/admin">Admin Dashboard</NavLink>
-                        <NavLink to="/admin/users">Benutzerverwaltung</NavLink>
-                        <NavLink to="/admin/cars">Fahrzeugverwaltung</NavLink>
-                        <NavLink to="/admin/reservations">Reservierungen</NavLink>
                     </>
                 )}
               {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}

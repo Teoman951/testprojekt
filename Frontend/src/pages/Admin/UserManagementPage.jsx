@@ -54,9 +54,16 @@ function UserManagementPage() {
     }, [navigate]);
 
     const handleDelete = async (id) => {
+        const userToDelete = users.find(user => user.id === id);
+        if (userToDelete?.role === 'admin') {
+            alert('Administratoren können nicht gelöscht werden.');
+            return;
+        }
+
         if (!window.confirm('Möchten Sie diesen Benutzer wirklich löschen?')) {
             return;
         }
+
         setError('');
         const token = localStorage.getItem('authToken');
         if (!token) {
@@ -84,6 +91,7 @@ function UserManagementPage() {
             console.error('Delete user error:', err);
         }
     };
+
 
     const handleEditClick = (user) => {
         setEditUserId(user.id);
@@ -202,6 +210,22 @@ function UserManagementPage() {
         <div className="content-container">
             <h2>Benutzerverwaltung</h2>
             {error && <p className="error-message">{error}</p>}
+
+            {/* Zurück-Button zum Dashboard */}
+            <button
+                onClick={() => navigate('/admin')}
+                style={{
+                    marginBottom: '15px',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                }}
+            >
+                ← Zurück zum Dashboard
+            </button>
 
             {/* Formular zum Erstellen eines neuen Benutzers */}
             <h3>Neuen Benutzer erstellen</h3>
