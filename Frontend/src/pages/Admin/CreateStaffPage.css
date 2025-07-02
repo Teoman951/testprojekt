@@ -1,0 +1,62 @@
+.create-staff {
+    padding: 2rem;
+    background-color: #fafafa;
+    max-width: 600px;
+    margin: 2rem auto;
+    border-radius: 8px;
+}
+
+.create-staff h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+    color: #222;
+}
+
+.staff-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.staff-form label {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.staff-form input,
+.staff-form select {
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.staff-form input:focus,
+.staff-form select:focus {
+    outline: none;
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+.staff-form button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.2rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.staff-form button:hover {
+    background-color: #218838;
+}
+
+.error-message {
+    color: #f44336;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}

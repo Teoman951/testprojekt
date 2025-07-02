@@ -1,3 +1,17 @@
+.dashboard-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-card {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    flex: 1 1 300px; /* Mindestbreite pro Karte */
+}
+
 .admin-dashboard {
     padding: 2rem;
     background-color: #f5f7fa;
@@ -7,20 +21,6 @@
     font-size: 2rem;
     color: #222;
     margin-bottom: 1.5rem;
-}
-
-.dashboard-cards {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.dashboard-card {
-    background-color: #fff;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    flex: 1 1 200px;
 }
 
 .dashboard-card h3 {

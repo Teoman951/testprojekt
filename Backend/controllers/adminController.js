@@ -1,5 +1,5 @@
 import User from '../models/User.js';
-import Vehicle from '../models/Vehicle.js';
+import Car from '../models/Car.js';
 import Reservation from '../models/Reservation.js';
 
 export const deleteUser = async (req, res) => {
@@ -16,7 +16,7 @@ export const deleteUser = async (req, res) => {
 
 export const createCar = async (req, res) => {
     try {
-        const vehicle = await Vehicle.create(req.body);
+        const vehicle = await Car.create(req.body);
         res.status(201).json(vehicle);
     } catch (error) {
         res.status(500).json({ message: 'Fehler beim Erstellen', error });
@@ -25,7 +25,7 @@ export const createCar = async (req, res) => {
 
 export const updateCar = async (req, res) => {
     try {
-        const vehicle = await Vehicle.findByPk(req.params.id);
+        const vehicle = await Car.findByPk(req.params.id);
         if (!vehicle) return res.status(404).json({ message: 'Fahrzeug nicht gefunden' });
 
         await vehicle.update(req.body);
