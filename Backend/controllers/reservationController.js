@@ -1,6 +1,4 @@
-import Reservation from '../models/Reservation.js';
-import Car from '../models/Car.js';
-import User from '../models/User.js';
+import { Car, User, Rate } from '../config/database.js';
 import { Op } from 'sequelize';
 
 // Neue Reservierung erstellen

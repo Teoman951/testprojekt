@@ -1,52 +1,40 @@
 // Backend/config/database.js
-import { Sequelize, DataTypes } from 'sequelize';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+dotenv.config();
 
-dotenv.config(); // Umgebungsvariablen laden
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Sequelize Instanz initialisieren
-// Verwendet SQLite als Datenbank und speichert die Datei im 'data'-Ordner.
+// 1) Instanz erzeugen
 export const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: path.join(__dirname, '..', process.env.DB_STORAGE || 'data/carsharing_db.sqlite'), // Pfad zur SQLite-Datei
-    logging: false, // Setze auf true, um SQL-Queries in der Konsole zu sehen
+  dialect : 'sqlite',
+  storage : './db.sqlite',   // beispielhaft, passe ggf. an
+  logging : false,
 });
 
-// Importiere Modelle
-import User from '../models/User.js';
-import Car from '../models/Car.js';
-import Reservation from '../models/Reservation.js';
-import Rate from '../models/Rate.js'; // Rate-Modell importieren
+// 2) Modelle registrieren
+import defineUser  from '../models/User.js';
+import defineRates from '../models/Rates.js';
+import defineCar from '../models/Car.js';
 
-// Definiere Assoziationen (Beziehungen zwischen Modellen)
+export const User  = defineUser(sequelize);
+export const Rate  = defineRates(sequelize);
+export const Car  = defineCar(sequelize);     // NEU
+export const User = defineUser(sequelize);
+export const Rate = defineRates(sequelize);
 
-// Ein Benutzer kann viele Reservierungen haben
-User.hasMany(Reservation, { foreignKey: 'userId' });
-Reservation.belongsTo(User, { foreignKey: 'userId' });
+// 3) Beziehungen (optional, aber meist erforderlich)
+User.belongsTo(Rate, { foreignKey: 'rateId', as: 'AssignedRate' });
+Rate.hasMany(User, { foreignKey: 'rateId', as: 'Users' });
+User.belongsTo(Rate, { foreignKey: 'rateId', as: 'AssignedRate' });
+Rate.hasMany(User, { foreignKey: 'rateId', as: 'Users' });
 
-// Ein Auto kann viele Reservierungen haben
-Car.hasMany(Reservation, { foreignKey: 'carId' });
-Reservation.belongsTo(Car, { foreignKey: 'carId' });
-
-// NEU: Assoziation zwischen User und Rate
-// Ein Benutzer gehört zu einem Tarif (Rate)
-User.belongsTo(Rate, { foreignKey: 'rateId', as: 'AssignedRate' }); // 'as: "AssignedRate"' für leichteren Zugriff beim Include
-// Eine Rate kann von vielen Benutzern genutzt werden
-Rate.hasMany(User, { foreignKey: 'rateId' });
-
-
-// Funktion zum Testen der Datenbankverbindung
+// 4) Helper zum Synchronisieren / Verbinden
 export const connectDB = async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('Database connection has been established successfully.');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-        throw error; // Fehler weiterwerfen
-    }
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync();    // { alter: true } o. Ä. nach Bedarf
+    console.log('Datenbank verbunden und synchronisiert');
+  } catch (err) {
+    console.error('DB-Verbindung fehlgeschlagen:', err);
+    process.exit(1);
+  }
 };

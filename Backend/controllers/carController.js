@@ -1,4 +1,5 @@
-import Car from '../models/Car.js';
+import { Car } from '../config/database.js';   // statt früherem Direkt-Import
+
 
 // Fahrzeug erstellen (nur Admins)
 export const createCar = async (req, res) => {

@@ -1,19 +1,19 @@
-import User from '../models/User.js'; // Import des User-Modells
-import bcrypt from 'bcryptjs'; // Importiert bcryptjs für Passwort-Hashing (relevant für zukünftige Passwort-Änderungen, hier nicht direkt verwendet)
+import { Car, User, Rate } from '../config/database.js';
+import bcrypt from 'bcryptjs';
 
-// Controller-Funktion zum Abrufen des eigenen Benutzerprofils
+// GET /api/users/me - Den eingeloggten Benutzer abrufen
 export const getMe = async (req, res) => {
     try {
-        // req.user.id kommt vom authMiddleware nach erfolgreicher Token-Verifizierung
-        // Ruft den Benutzer anhand seiner ID ab und schließt das Passwort aus
         const user = await User.findByPk(req.user.id, {
-            attributes: { exclude: ['password'] }
+            attributes: { exclude: ['password'] },
+            include: {
+                model: Rate,
+                as: 'AssignedRate'
+            }
         });
         if (!user) {
-            // Wenn Benutzer nicht gefunden wurde (obwohl ein Token vorhanden ist), ist dies ein Fehler
             return res.status(404).json({ message: 'User not found' });
         }
-        // Sende die Benutzerdaten zurück
         res.json(user);
     } catch (error) {
         console.error('Get user error:', error.message);
@@ -21,11 +21,41 @@ export const getMe = async (req, res) => {
     }
 };
 
-// Controller-Funktion zum Abrufen aller Benutzer (Admin-Berechtigung erforderlich)
+// POST /api/users/assign-rate - Einem Benutzer einen Tarif zuweisen
+export const assignRateToUser = async (req, res) => {
+    const { rateId } = req.body;
+    const userId = req.user.id;
+
+    try {
+        const rate = await Rate.findByPk(rateId);
+        if (!rate) {
+            return res.status(404).json({ message: 'Rate not found' });
+        }
+
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.rateId = rateId;
+        await user.save();
+
+        const updatedUser = await User.findByPk(userId, {
+            attributes: { exclude: ['password'] },
+            include: { model: Rate, as: 'AssignedRate' }
+        });
+
+        res.json({ message: 'Rate updated successfully', user: updatedUser });
+
+    } catch (error) {
+        console.error('Assign rate to user error:', error.message);
+        res.status(500).send('Server error');
+    }
+};
+
+// GET /api/users - Alle Benutzer abrufen (typischerweise eine Admin-Funktion)
 export const getAllUsers = async (req, res) => {
     try {
-        // Ruft alle Benutzer ab und schließt Passwörter aus
-        // Die Rollenprüfung für Admin erfolgt bereits in der Route (userRoutes.js)
         const users = await User.findAll({
             attributes: { exclude: ['password'] }
         });
@@ -36,69 +66,41 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
-// Controller-Funktion zum Aktualisieren eines Benutzers
+// PUT /api/users/:id - Einen Benutzer aktualisieren
 export const updateUser = async (req, res) => {
-    const { id } = req.params; // Die ID des zu aktualisierenden Benutzers kommt aus der URL
-    const { username, email, role } = req.body; // Daten, die vom Frontend gesendet werden
-
     try {
-        // Suche den Benutzer in der Datenbank
-        let user = await User.findByPk(id);
+        const user = await User.findByPk(req.params.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Rollenprüfung: Wer darf wen aktualisieren?
-        // 1. Ein normaler Benutzer (req.user.role !== 'admin') darf nur sein eigenes Profil aktualisieren.
-        //    `req.user.id` ist die ID des eingeloggten Benutzers (aus dem JWT).
-        //    `parseInt(id)` ist die ID des Benutzers, der aktualisiert werden soll (aus der URL).
-        if (req.user.role !== 'admin' && req.user.id !== parseInt(id)) {
-            return res.status(403).json({ message: 'Not authorized to update this user' });
-        }
-        // 2. Ein normaler Benutzer darf seine eigene Rolle NICHT ändern.
-        //    Wenn eine 'role' im Body gesendet wird UND der eingeloggte Benutzer KEIN Admin ist UND die gesendete Rolle anders ist als die aktuelle, blockieren.
-        if (req.user.role !== 'admin' && role && user.role !== role) {
-            return res.status(403).json({ message: 'Not authorized to change user role' });
-        }
-
-        // Aktualisiere die Felder des Benutzers
-        // Nutzt den gesendeten Wert, falls vorhanden, sonst behält es den alten Wert
+        const { username, email } = req.body;
         user.username = username || user.username;
         user.email = email || user.email;
 
-        // Die Rolle kann nur von einem Admin geändert werden (bereits oben geprüft)
-        if (req.user.role === 'admin' && role) {
-            user.role = role;
-        }
+        await user.save();
 
-        await user.save(); // Speichert die Änderungen in der Datenbank
+        const userResponse = user.toJSON();
+        delete userResponse.password;
 
-        // Sende den aktualisierten Benutzer zurück (ohne Passwort für Sicherheit)
-        res.json({ message: 'User updated successfully', user: { id: user.id, username: user.username, email: user.email, role: user.role } });
-
+        res.json({ message: 'User updated successfully', user: userResponse });
     } catch (error) {
         console.error('Update user error:', error.message);
         res.status(500).send('Server error');
     }
 };
 
-// Controller-Funktion zum Löschen eines Benutzers
+// DELETE /api/users/:id - Einen Benutzer löschen
 export const deleteUser = async (req, res) => {
-    const { id } = req.params; // ID des zu löschenden Benutzers kommt aus der URL
-
     try {
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(req.params.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Rollenprüfung: Nur Admin oder der Benutzer selbst darf sich löschen
-        if (req.user.role !== 'admin' && req.user.id !== parseInt(id)) {
-            return res.status(403).json({ message: 'Not authorized to delete this user' });
-        }
-
-        await user.destroy(); // Löscht den Benutzer aus der Datenbank
+        await user.destroy();
         res.json({ message: 'User deleted successfully' });
+
     } catch (error) {
         console.error('Delete user error:', error.message);
         res.status(500).send('Server error');

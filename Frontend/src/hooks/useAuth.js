@@ -1,4 +1,4 @@
-import { useState } from 'react'; // useEffect ist hier nicht zwingend nötig, da wir den Token im useState initialisieren
+import { useState } from 'react';
 
 const useAuth = () => {
     const [token, setToken] = useState(localStorage.getItem('authToken'));

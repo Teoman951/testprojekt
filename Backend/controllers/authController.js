@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+// Ganz oben:
+import { User } from '../config/database.js';  // statt '../models/User.js'
 
 // Registrierung
 export const register = async (req, res) => {

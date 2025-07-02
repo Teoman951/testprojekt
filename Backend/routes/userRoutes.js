@@ -1,20 +1,29 @@
 import { Router } from 'express';
 import authMiddleware, { authorizeRoles } from '../middleware/authMiddleware.js';
-import { getMe, getAllUsers, updateUser, deleteUser } from '../controllers/userController.js';
+import {
+    getMe,
+    getAllUsers,
+    updateUser,
+    deleteUser,
+    assignRateToUser // Die neue Funktion importieren
+} from '../controllers/userController.js';
 
 const router = Router();
 
-// Geschützte Route: Aktuellen Benutzer abrufen
+// Ruft das Profil des eingeloggten Benutzers ab (inkl. Tarif)
 router.get('/me', authMiddleware, getMe);
 
-// Geschützte Route: Alle Benutzer abrufen (nur Admins)
+// NEU: Aktualisiert den Tarif des eingeloggten Benutzers
+router.put('/me/rate', authMiddleware, assignRateToUser);
+
+// --- Admin-Routen ---
+// Ruft alle Benutzer ab (nur für Admins)
 router.get('/', authMiddleware, authorizeRoles('admin'), getAllUsers);
 
-// Geschützte Route: Benutzer aktualisieren (eigener Nutzer oder Admin)
-router.put('/:id', authMiddleware, updateUser); // Rollenprüfung im Controller
+// Aktualisiert einen beliebigen Benutzer (nur für Admins oder den Benutzer selbst)
+router.put('/:id', authMiddleware, updateUser);
 
-// Geschützte Route: Benutzer löschen (eigener Nutzer oder Admin)
-router.delete('/:id', authMiddleware, deleteUser); // Rollenprüfung im Controller
-
+// Löscht einen Benutzer (nur für Admins oder den Benutzer selbst)
+router.delete('/:id', authMiddleware, deleteUser);
 
 export default router;

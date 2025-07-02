@@ -1,44 +1,35 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/database.js';
 
-const Car = sequelize.define('Car', {
+// Backend/models/Car.js
+// Fabrikfunktion – erhält die Sequelize-Instanz
+
+import { DataTypes } from 'sequelize';
+
+export default (sequelize) => {
+  const Car = sequelize.define('Car', {
     id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
+      type         : DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey   : true,
+      allowNull    : false,
     },
-    licensePlate: { // Kennzeichen
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
+    licensePlate: {
+      type  : DataTypes.STRING,
+      allowNull: false,
+      unique: true,
     },
-    brand: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    model: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    year: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-    color: {
-        type: DataTypes.STRING,
-    },
-    location: { // Aktueller Standort des Fahrzeugs
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    dailyRate: { // Tagespreis in Euro
-        type: DataTypes.FLOAT,
-        allowNull: false,
-    },
-    isAvailable: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
-    }
-});
+    brand : { type: DataTypes.STRING, allowNull: false },
+    model : { type: DataTypes.STRING, allowNull: false },
+    year  : { type: DataTypes.INTEGER, allowNull: false },
 
-export default Car;
+    color    : DataTypes.STRING,
+    location : DataTypes.STRING,
+    dailyRate: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    isAvailable: { type: DataTypes.BOOLEAN, defaultValue: true },
+  }, {
+    timestamps: true,
+    tableName : 'cars',
+  });
+
+  return Car;
+};
