@@ -15,6 +15,11 @@ function AdminDashboard() {
                     </Link>
                 </li>
                 <li className="dashboard-card">
+                    <Link to="/admin/createStaff" className="dashboard-link staff-link">
+                        Mitarbeiter erstellen
+                    </Link>
+                </li>
+                <li className="dashboard-card">
                     <Link to="/admin/cars" className="dashboard-link car-link">
                         Fahrzeuge verwalten
                     </Link>
@@ -22,11 +27,6 @@ function AdminDashboard() {
                 <li className="dashboard-card">
                     <Link to="/admin/reservations" className="dashboard-link reservation-link">
                         Reservierungen verwalten
-                    </Link>
-                </li>
-                <li className="dashboard-card">
-                    <Link to="/admin/createStaff" className="dashboard-link staff-link">
-                        Mitarbeiter erstellen
                     </Link>
                 </li>
             </ul>

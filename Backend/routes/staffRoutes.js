@@ -6,13 +6,11 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
-// GET /api/staff – Test
 router.get('/', (req, res) => {
     console.log('GET /api/staff wurde aufgerufen');
     res.json({ message: 'Staff route funktioniert!' });
 });
 
-// ✅ POST /api/staff – Mitarbeiter erstellen (nur Admin)
 router.post('/', authMiddleware, authorizeRoles('admin'), async (req, res) => {
     console.log('POST /api/staff wurde aufgerufen');
     try {

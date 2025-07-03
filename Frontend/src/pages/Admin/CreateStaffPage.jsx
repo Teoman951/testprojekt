@@ -53,13 +53,19 @@ function CreateStaffPage() {
         <div className="content-container">
             <h2>Mitarbeiter erstellen</h2>
             {error && <p className="error-message">{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <label>Benutzername:</label>
-                <input value={username} onChange={(e) => setUsername(e.target.value)} required />
-                <label>E-Mail:</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                <label>Passwort:</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <form onSubmit={handleSubmit} className="staff-form">
+                <div className="form-group">
+                    <label>Benutzername:</label>
+                    <input value={username} onChange={(e) => setUsername(e.target.value)} required/>
+                </div>
+                <div className="form-group">
+                    <label>E-Mail:</label>
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required/>
+                </div>
+                <div className="form-group">
+                    <label>Passwort:</label>
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
+                </div>
                 <button type="submit">Erstellen</button>
             </form>
         </div>

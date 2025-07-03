@@ -11,7 +11,7 @@ function ProfilePage() {
     // States für die bearbeitbaren Felder
     const [editUsername, setEditUsername] = useState('');
     const [editEmail, setEditEmail] = useState('');
-
+    const [editDateOfBirth, setEditDateOfBirth] = useState('');
     const navigate = useNavigate();
 
     // Funktion zum Abrufen des Profils

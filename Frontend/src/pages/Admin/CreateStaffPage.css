@@ -4,18 +4,27 @@
     max-width: 600px;
     margin: 2rem auto;
     border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.create-staff h1 {
+.create-staff h2 {
     font-size: 1.8rem;
     margin-bottom: 1.2rem;
     color: #222;
+    font-weight: 700;
 }
 
 .staff-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .staff-form label {
@@ -30,13 +39,14 @@
     font-size: 1.1rem;
     border: 1px solid #ccc;
     border-radius: 5px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .staff-form input:focus,
 .staff-form select:focus {
     outline: none;
     border-color: #28a745;
-    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
 }
 
 .staff-form button {
@@ -49,6 +59,7 @@
     cursor: pointer;
     margin-top: 1rem;
     transition: background-color 0.3s ease;
+    align-self: flex-start;
 }
 
 .staff-form button:hover {
@@ -59,4 +70,7 @@
     color: #f44336;
     font-weight: 600;
     margin-bottom: 1rem;
+    background-color: #fdecea;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
 }
