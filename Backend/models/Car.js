@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+
 
 // Backend/models/Car.js
 // Fabrikfunktion – erhält die Sequelize-Instanz
