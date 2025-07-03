@@ -1,8 +1,8 @@
-// routes/staffRoutes.js
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import authMiddleware, { authorizeRoles } from '../middleware/authMiddleware.js';
 import User from '../models/User.js';
+import staffController from '../controllers/staffController.js';
 
 const router = express.Router();
 
@@ -11,6 +11,7 @@ router.get('/', (req, res) => {
     res.json({ message: 'Staff route funktioniert!' });
 });
 
+// Admin-only: Mitarbeiter erstellen
 router.post('/', authMiddleware, authorizeRoles('admin'), async (req, res) => {
     console.log('POST /api/staff wurde aufgerufen');
     try {
@@ -40,5 +41,24 @@ router.post('/', authMiddleware, authorizeRoles('admin'), async (req, res) => {
         res.status(500).json({ message: 'Serverfehler beim Erstellen des Mitarbeiters' });
     }
 });
+
+// Ab hier für Mitarbeiter und Admins
+router.use(authMiddleware);
+router.use(authorizeRoles('mitarbeiter', 'admin'));
+
+// Benutzer aktualisieren
+router.put('/user/:id', (req, res) => staffController.updateUser(req, res));
+
+// Reservierungen verwalten
+router.get('/reservations/user/:userId', (req, res) => staffController.getReservationsByUser(req, res));
+router.post('/reservations', (req, res) => staffController.addReservation(req, res));
+router.delete('/reservations/:id', (req, res) => staffController.cancelReservation(req, res));
+
+// Fahrzeugdaten aktualisieren
+router.put('/car/:id', (req, res) => staffController.updateCar(req, res));
+
+// Tarife verwalten
+router.post('/rates', (req, res) => staffController.addRate(req, res));
+router.delete('/rates/:id', (req, res) => staffController.deleteRate(req, res));
 
 export default router;

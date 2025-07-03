@@ -1,38 +1,38 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import useAuth from '../../hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 function StaffDashboardPage() {
-    const navigate = useNavigate();
-    const { userRole } = useAuth();
-
     return (
-        <div className="content-container">
-            <h2>Willkommen im Mitarbeiter-Dashboard</h2>
-            <p>Rolle: <strong>{userRole}</strong></p>
+        <div className="content-container admin-dashboard">
+            <h2>Mitarbeiter-Dashboard</h2>
 
-                <div className="dashboard-buttons">
-                    <button onClick={() => navigate('/staff/reservations')}>
+            <ul className="dashboard-cards">
+                <li className="dashboard-card">
+                    <Link to="/staff/reservations" className="dashboard-link reservation-link">
                         Reservierungen verwalten
-                    </button>
+                    </Link>
+                </li>
 
-                    <button onClick={() => navigate('/home')} className="secondary">
-                        Zurück zur Startseite
-                    </button>
-                </div>
+                <li className="dashboard-card">
+                    <Link to="/staff/rates" className="dashboard-link rates-link">
+                        Tarife auswählen
+                    </Link>
+                </li>
 
-            </div>
-            );
-            }
+                <li className="dashboard-card">
+                    <Link to="/staff/users" className="dashboard-link user-link">
+                        Benutzer bearbeiten
+                    </Link>
+                </li>
 
-            const buttonStyle = {
-            padding: '10px 15px',
-            marginRight: '10px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-        };
+                <li className="dashboard-card">
+                    <Link to="/staff/cars" className="dashboard-link car-link">
+                        Fahrzeuge bearbeiten
+                    </Link>
+                </li>
+            </ul>
+        </div>
+    );
+}
 
-            export default StaffDashboardPage;
+export default StaffDashboardPage;
