@@ -36,6 +36,10 @@ import StaffRoute from "./components/StaffRoute.jsx"; // Hinzufügen von './'
 // Import des Auth Hooks - KORRIGIERTER PFAD
 import useAuth from "./hooks/useAuth";
 import AboutUs from "./pages/User/AboutUsPage.jsx";
+import EditCarPage from "./pages/Staff/EditCarPage.jsx";
+import UpdateUserPage from "./pages/Staff/UpdateUserPage.jsx";
+import StaffReservationsPage from "./pages/Staff/StaffReservationsPage.jsx";
+import StaffRatesPage from "./pages/Staff/StaffRatesPage.jsx";
 
 // --- Hauptkomponente der React-Anwendung ---
 function App() {
@@ -69,7 +73,10 @@ function App() {
                         <NavLink to="/admin">Admin Dashboard</NavLink>
                     </>
                 )}
-              {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
+                {userRole === "mitarbeiter" && (
+                    <NavLink to="/Staff">Mitarbeiter Dashboard</NavLink>
+                )}
+                {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
               <button
                 onClick={() => {
                   logout();
@@ -134,9 +141,12 @@ function App() {
               </PrivateRoute>
             }
           /> {/* Mitarbeiter-Route */}
-            <Route path="/staff" element={<StaffRoute />}>
-            <Route index element={<StaffDashboardPage />} />
-
+                <Route path="/staff" element={<StaffRoute />}>
+                    <Route index element={<StaffDashboardPage />} />
+                    <Route path="rates" element={<StaffRatesPage />} />
+                    <Route path="users" element={<UpdateUserPage />} />
+                    <Route path="reservations" element={<StaffReservationsPage />} />
+                    <Route path="cars" element={<EditCarPage />} />
         </Route>
             <Route path="/admin" element={<AdminRoute />}>
                 <Route index element={<AdminDashboardPage />} />

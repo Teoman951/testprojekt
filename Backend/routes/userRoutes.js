@@ -9,7 +9,7 @@ const router = Router();
 router.get('/me', authMiddleware, getMe);
 
 // Geschützte Route: Alle Benutzer abrufen (nur Admins)
-router.get('/', authMiddleware, authorizeRoles('admin'), getAllUsers);
+router.get('/', authMiddleware, authorizeRoles('admin','mitarbeiter'), getAllUsers);
 
 // Geschützte Route: Benutzer aktualisieren (eigener Nutzer oder Admin)
 router.put('/:id', authMiddleware, updateUser); // Rollenprüfung im Controller
