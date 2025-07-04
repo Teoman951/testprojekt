@@ -1,10 +1,10 @@
 import React from "react";
-import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import "./App.css"; // Stellt sicher, dass diese Datei existiert oder entfernt den Import
 
 // Imports der ausgelagerten Komponenten - KORRIGIERTE PFADE
 import LoginPage from "./pages/Auth/LoginPage"; // Hinzufügen von './'
-import RegisterPage from "./pages/Auth/RegisterPage"; // Hinzufügen von './'
+import RegisterWizard from './pages/Auth/Register/RegisterWizard.jsx'; // Hinzufügen von './'
 import HomePage from "./pages/User/HomePage.jsx"; // Hinzufügen von './'
 import ProfilePage from "./pages/User/ProfilePage.jsx"; // Hinzufügen von './'
 import ReservationsPage from "./pages/User/ReservationsPage.jsx"; // Hinzufügen von './'
@@ -74,7 +74,9 @@ function App() {
           <Route path="/aboutus" element={<AboutUsPage />} />
 
           <Route path="/login" element={<LoginPage onLoginSuccess={login} />} />
-          <Route path="/register" element={<RegisterPage />} />
+           {/*  Wizard-Hauptroute  */}
+          <Route path="/register/*" element={<RegisterWizard />} />
+  
           {/* Geschützte Routen (nur zugänglich, wenn ein Token vorhanden ist) */}
           <Route
             path="/home"
@@ -118,6 +120,8 @@ function App() {
               <h2 className="content-container">Seite nicht gefunden (404)</h2>
             }
           />
+          {/* 404-Fallback */}
+          <Route path="*" element={<p>404 – Seite nicht gefunden</p>} />
         </Routes>
       </main>
     </div>
