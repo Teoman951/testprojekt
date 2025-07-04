@@ -4,13 +4,33 @@ const RegisterContext = createContext();
 
 export function RegisterProvider({ children }) {
   const [data, setData] = useState({
-    username: '', email: '', password: '',
-    firstName: '', lastName: '', dob: '', phone: '',
-    street: '', zip: '', city: '', country: 'DE',
-    licenseNo: '', licenseCountry: 'DE',
-    licenseIssue: '', licenseExpiry: '', licenseFile: null,
-    payType: 'card', cardNo: '', cardExp: '', cardCvc: '', iban: '',
-  });
+  /* -------- Account -------- */
+  username: '',
+  email: '',
+  password: '',
+  /* -------- Personal -------- */
+  firstName: '',
+  lastName: '',
+  dob: '',
+  /* -------- Adresse -------- */
+  street: '',
+  zip: '',
+  city: '',
+  country: 'DE',
+  /* -------- Führerschein -------- */
+  licenseNo: '',
+  licenseCountry: 'DE',
+  licenseIssue: '',
+  licenseExpiry: '',
+  licenseFile: null,
+  /* -------- Zahlung -------- */
+  payType: 'card',   //  card | sepa | paypal
+  cardNo: '',
+  cardExp: '',
+  cardCvc: '',
+  iban: '',
+  bic: '',
+});
 
   const update = (partial) => setData((prev) => ({ ...prev, ...partial }));
 
