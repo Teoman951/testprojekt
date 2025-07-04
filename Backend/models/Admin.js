@@ -1,8 +1,8 @@
-// models/User.js
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../config/database.js';
+import bcrypt from 'bcrypt';
 
-const User = sequelize.define('User', {
+const Admin = sequelize.define('Admin', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -11,20 +11,24 @@ const User = sequelize.define('User', {
     username: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+        validate: {
+            isEmail: true,
+        },
     },
     password: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     role: {
-        type: DataTypes.ENUM('user', 'admin', 'mitarbeiter'),
+        type: DataTypes.ENUM('user', 'admin', 'superadmin'),
+        allowNull: false,
         defaultValue: 'user',
-    },
+    }
 });
-
-export default User;
+export default Admin;
