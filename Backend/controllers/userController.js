@@ -1,43 +1,104 @@
-import User from '../models/User.js'; // je nach deiner Struktur
+// Backend/controllers/userController.js
+import User from '../models/User.js'; // User-Modell importieren
 
-export const createUser = async (req, res) => {
-    const { username, email, password, role,dateOfBirth } = req.body;
-
-    if (!username || !email || !password) {
-        return res.status(400).json({ message: 'Bitte alle Pflichtfelder ausfüllen.' });
+// Aktuellen eingeloggten Benutzer abrufen (z.B. für /me)
+export const getMe = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.user.id, {
+            attributes: ['id', 'username', 'email', 'role'], // Felder, die zurückgegeben werden
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error('Fehler bei getMe:', error);
+        res.status(500).json({ message: 'Serverfehler' });
     }
+};
+
+// Alle Benutzer abrufen (Admin-Funktion)
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: ['id', 'username', 'email', 'role'], // gewünschte Felder
+        });
+        res.json(users);
+    } catch (error) {
+        console.error('Fehler beim Laden der Benutzer:', error);
+        res.status(500).json({ message: 'Serverfehler' });
+    }
+};
+
+// Benutzer aktualisieren
+export const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const { username, email, role } = req.body;
 
     try {
-        // Check, ob Nutzer schon existiert
-        const existingUser = await User.findOne({ where: { email } });
-        if (existingUser) {
-            return res.status(400).json({ message: 'Benutzer mit dieser E-Mail existiert bereits.' });
+        const userToUpdate = await User.findByPk(id);
+        if (!userToUpdate) {
+            return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
         }
 
-        // Passwort hashen (bcrypt)
-        const bcrypt = await import('bcryptjs');
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Benutzer anlegen mit Rolle aus Body (nur Admin kann Rolle angeben!)
-        const newUser = await User.create({
-            username,
-            email,
-            password: hashedPassword,
-            role: role || 'user' // Default 'user' falls keine Rolle angegeben
-        });
-
-        res.status(201).json({
-            message: 'Benutzer erfolgreich erstellt',
-            user: {
-                id: newUser.id,
-                username: newUser.username,
-                email: newUser.email,
-                role: newUser.role
+        // Berechtigungsprüfung
+        if (req.user.role !== 'admin') {
+            if (req.user.id !== userToUpdate.id) {
+                return res.status(403).json({ message: 'Nicht berechtigt, diesen Benutzer zu bearbeiten.' });
             }
+            if (userToUpdate.role === 'admin') {
+                return res.status(403).json({ message: 'Sie dürfen keinen Administrator bearbeiten.' });
+            }
+        }
+
+        // Felder aktualisieren
+        userToUpdate.username = username || userToUpdate.username;
+        userToUpdate.email = email || userToUpdate.email;
+        if (req.user.role === 'admin' && role) {
+            userToUpdate.role = role;
+        }
+
+        await userToUpdate.save();
+
+        res.status(200).json({
+            message: 'Benutzer erfolgreich aktualisiert.',
+            user: {
+                id: userToUpdate.id,
+                username: userToUpdate.username,
+                email: userToUpdate.email,
+                role: userToUpdate.role,
+            },
         });
     } catch (error) {
-        console.error('Fehler beim Erstellen des Benutzers:', error);
-        res.status(500).json({ message: 'Serverfehler beim Erstellen des Benutzers' });
+        console.error('Fehler beim Aktualisieren des Benutzers:', error);
+        res.status(500).json({ message: 'Serverfehler beim Aktualisieren des Benutzers' });
+    }
+};
+
+// Benutzer löschen
+export const deleteUser = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const userToDelete = await User.findByPk(id);
+        if (!userToDelete) {
+            return res.status(404).json({ message: 'Benutzer nicht gefunden.' });
+        }
+
+        // Berechtigungsprüfung
+        if (req.user.role !== 'admin') {
+            if (req.user.id !== userToDelete.id) {
+                return res.status(403).json({ message: 'Nicht berechtigt, diesen Benutzer zu löschen.' });
+            }
+            if (userToDelete.role === 'admin') {
+                return res.status(403).json({ message: 'Sie dürfen keinen Administrator löschen.' });
+            }
+        }
+
+        await userToDelete.destroy();
+        res.json({ message: 'Benutzer erfolgreich gelöscht.' });
+    } catch (error) {
+        console.error('Fehler beim Löschen des Benutzers:', error);
+        res.status(500).json({ message: 'Serverfehler beim Löschen des Benutzers' });
     }
 };

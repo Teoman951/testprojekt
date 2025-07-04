@@ -10,7 +10,7 @@ function UserManagementPage() {
     const [loading, setLoading] = useState(true);
     const [editUserId, setEditUserId] = useState(null); // ID des Benutzers, der gerade bearbeitet wird
     const [editUsername, setEditUsername] = useState('');
-    const [editDateOfBirth, setEditDateOfBirth] = useState('');
+    
     const [editEmail, setEditEmail] = useState('');
     const [editRole, setEditRole] = useState('');
     const navigate = useNavigate();

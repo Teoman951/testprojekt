@@ -155,7 +155,7 @@ function App() {
                 <Route path="reservations" element={<ReservationManagementPage />} />
                 <Route path="createStaff" element={<CreateStaffPage />} />
             </Route>
-            
+
             <Route path="/rates" element={<RatesPage />} />
           {/* Standard-Route für den Start oder unbekannte Pfade */}
           {/* Leitet zur Startseite um, wenn eingeloggt, sonst zur Login-Seite */}

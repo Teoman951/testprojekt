@@ -12,7 +12,6 @@ const router = express.Router();
 
 router.post('/', createRate);
 router.get('/', getAllRates);
-router.get('/:id', getRateById);
 router.put('/:id', updateRate);
 router.delete('/:id', deleteRate);
 

@@ -9,7 +9,6 @@ function RegisterPage() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [dateOfBirth, setDateOfBirth] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -18,11 +17,10 @@ function RegisterPage() {
         setError('');
 
         // Überprüfe, ob alle Felder ausgefüllt sind (jetzt mit username)
-        if (!username || !email || !password || !dateOfBirth) {
+        if (!username || !email || !password) {
             setError('Bitte alle Felder ausfüllen.');
             return;
         }
-
         if (password.length < 6) {
             setError('Passwort muss mindestens 6 Zeichen lang sein.');
             return;
@@ -37,7 +35,7 @@ function RegisterPage() {
                     'Content-Type': 'application/json',
                 },
                 // HIER ist die Korrektur: username statt name im JSON-Body
-                body: JSON.stringify({ username, email, password, dateOfBirth }),
+                body: JSON.stringify({ username, email, password }),
             });
 
             const data = await response.json();
@@ -80,7 +78,6 @@ function RegisterPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                     />
-
                 </div>
                 <div className="form-group">
                     <label htmlFor="password">Passwort:</label>
@@ -93,16 +90,6 @@ function RegisterPage() {
                         required
                     />
                 </div>
-                <div className="form-group">
-                <label htmlFor="dateOfBirth">Geburtsdatum:</label>
-                <input
-                    type="date"
-                    id="dateOfBirth"
-                    value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
-                    required
-                />
-        </div>
                 <button type="submit">Registrieren</button>
             </form>
             <p>Bereits ein Konto? <Link to="/login">Hier einloggen</Link></p>

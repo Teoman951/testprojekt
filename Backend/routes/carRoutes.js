@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import authMiddleware, { authorizeRoles } from '../middleware/authMiddleware.js';
+import authMiddleware, {authorizeRoles} from '../middleware/authMiddleware.js'; // authMiddleware ist ein Standard-Export
 import { createCar, getAllCars, getCarById, updateCar, deleteCar } from '../controllers/carController.js';
 
 const router = Router();
@@ -8,8 +8,8 @@ const router = Router();
 router.post('/', authMiddleware, authorizeRoles('admin'), createCar);
 
 // Alle Fahrzeuge abrufen (jeder Authentifizierte)
-//router.get('/', authMiddleware, getAllCars);
-router.get('/', getAllCars);
+// router.get('/', authMiddleware, getAllCars); // Wenn Authentifizierung für alle Fahrzeuge erforderlich ist
+router.get('/', getAllCars); // Wenn alle Fahrzeuge auch für Nicht-Authentifizierte sichtbar sein sollen
 
 // Einzelnes Fahrzeug abrufen (jeder Authentifizierte)
 router.get('/:id', authMiddleware, getCarById);
