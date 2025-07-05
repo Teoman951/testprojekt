@@ -1,18 +1,23 @@
+//-----------------------------------------------------------
+//  routes/authRoutes.js
+//-----------------------------------------------------------
 import { Router } from 'express';
 import { register, login } from '../controllers/authController.js';
-import multer from 'multer';
+import { upload } from '../utils/upload.js';
 
 const router = Router();
-const upload = multer();
 
+// ---------- Registrierung ----------
 router.post(
   '/register',
   upload.fields([
-    { name: 'licenseFront', maxCount: 1 },  // <– Vorderseite
-    { name: 'licenseBack',  maxCount: 1 }   // <– Rückseite
+    { name: 'licenseFront', maxCount: 1 },
+    { name: 'licenseBack',  maxCount: 1 }
   ]),
-  register                                  // dein Controller
+  register
 );
+
+// ---------- Login ----------
 router.post('/login', login);
 
 export default router;
