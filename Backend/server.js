@@ -13,6 +13,11 @@ import carRoutes         from './routes/carRoutes.js';
 import reservationRoutes from './routes/reservationRoutes.js';
 import ratesRoutes       from './routes/ratesRoutes.js';
 
+import User from './models/User.js';
+import Car from './models/Car.js';
+import Reservation from './models/Reservation.js';
+import Rates from './models/Rates.js';
+
 dotenv.config();
 
 const app  = express();
@@ -27,6 +32,13 @@ app.use(express.urlencoded({ extended: true }));   //  <- NEU (für FormData-Fal
 // 2️⃣  CORS  für dein Frontend
 app.use(cors());
 
+//
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/cars', carRoutes);
+app.use('/api/reservations', reservationRoutes);
+app.use('/api/rates', ratesRoutes);
+
 // 3️⃣  Static-Files: Führerschein-Bilder ausliefern
 //     (Multer legt sie in uploads/licenses/ ab)
 app.use('/uploads', express.static('uploads'));    //  <- NEU
@@ -39,7 +51,7 @@ app.use('/api/cars',         carRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/rates',        ratesRoutes);
 
-app.get('/', (_req, res) => res.send('Welcome to the DriveLink Backend!'));
+app.get('/', (_req, res) => res.send('Welcome to the MoveSnart Backend!'));
 
 /* ───────────────────── DB & Server ────────────────────── */
 
@@ -47,12 +59,22 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    // 4️⃣  Schema automatisch **angleichen**
+     //  Modellassoziationen
+        User.hasMany(Reservation, { foreignKey: 'userId' });
+        Reservation.belongsTo(User, { foreignKey: 'userId' });
+
+        Car.hasMany(Reservation, { foreignKey: 'carId' });
+        Reservation.belongsTo(Car, { foreignKey: 'carId' });
+
+        User.belongsTo(Rates, { foreignKey: 'rateId', as: 'AssignedRate' });
+        Rates.hasMany(User, { foreignKey: 'rateId' });
+
+    //  Schema automatisch **angleichen**
     await sequelize.sync({ force: true }); 
     console.log('All models synchronized (alter:true)');
 
     app.listen(PORT, () =>
-      console.log(`Server ready  👉  http://localhost:${PORT}`)
+      console.log(`Server is running on http://localhost:${PORT}`)
     );
   } catch (err) {
     console.error('Failed to start server:', err);
