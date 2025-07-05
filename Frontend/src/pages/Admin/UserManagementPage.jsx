@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import "./UserManagement.css";
 
 const API_BASE_URL = 'http://localhost:3001';
 
@@ -10,7 +9,6 @@ function UserManagementPage() {
     const [loading, setLoading] = useState(true);
     const [editUserId, setEditUserId] = useState(null); // ID des Benutzers, der gerade bearbeitet wird
     const [editUsername, setEditUsername] = useState('');
-    
     const [editEmail, setEditEmail] = useState('');
     const [editRole, setEditRole] = useState('');
     const navigate = useNavigate();
@@ -55,16 +53,9 @@ function UserManagementPage() {
     }, [navigate]);
 
     const handleDelete = async (id) => {
-        const userToDelete = users.find(user => user.id === id);
-        if (userToDelete?.role === 'admin') {
-            alert('Administratoren können nicht gelöscht werden.');
-            return;
-        }
-
         if (!window.confirm('Möchten Sie diesen Benutzer wirklich löschen?')) {
             return;
         }
-
         setError('');
         const token = localStorage.getItem('authToken');
         if (!token) {
@@ -92,7 +83,6 @@ function UserManagementPage() {
             console.error('Delete user error:', err);
         }
     };
-
 
     const handleEditClick = (user) => {
         setEditUserId(user.id);
@@ -181,14 +171,14 @@ function UserManagementPage() {
                     username: newUsername,
                     email: newEmail,
                     password: newPassword,
-                    role: newRole
+                    // role: newRole // 'register' route ignoriert dies
                 }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                alert('Neuer Benutzer erfolgreich erstellt!');
+                alert('Neuer Benutzer erfolgreich erstellt (Rolle ist vorerst "user")!');
                 setNewUsername('');
                 setNewEmail('');
                 setNewPassword('');
@@ -212,22 +202,6 @@ function UserManagementPage() {
             <h2>Benutzerverwaltung</h2>
             {error && <p className="error-message">{error}</p>}
 
-            {/* Zurück-Button zum Dashboard */}
-            <button
-                onClick={() => navigate('/admin')}
-                style={{
-                    marginBottom: '15px',
-                    backgroundColor: '#007bff',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 12px',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                }}
-            >
-                ← Zurück zum Dashboard
-            </button>
-
             {/* Formular zum Erstellen eines neuen Benutzers */}
             <h3>Neuen Benutzer erstellen</h3>
             <form onSubmit={handleCreateUser} style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
@@ -247,7 +221,6 @@ function UserManagementPage() {
                     <label htmlFor="newRole">Rolle:</label>
                     <select id="newRole" value={newRole} onChange={(e) => setNewRole(e.target.value)} disabled>
                         <option value="user">user</option>
-                        <option value="mitarbeiter">mitarbeiter</option>
                         {/* Admin-Rolle kann hier nicht direkt gesetzt werden, da die /register-Route dies ignoriert */}
                     </select>
                     <p style={{fontSize: '0.8em', color: '#666'}}>Hinweis: Rolle wird standardmäßig auf "user" gesetzt und kann nachträglich bearbeitet werden.</p>
@@ -280,7 +253,7 @@ function UserManagementPage() {
                                         <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} required style={inputStyle} />
                                         <select value={editRole} onChange={(e) => setEditRole(e.target.value)} style={selectStyle}>
                                             <option value="user">user</option>
-                                            <option value="mitarbeiter">mitarbeiter</option>
+                                            <option value="admin">admin</option>
                                         </select>
                                         <button type="submit" style={{ backgroundColor: '#007bff', color: 'white', padding: '8px 12px', borderRadius: '5px', border: 'none' }}>Speichern</button>
                                         <button type="button" onClick={handleCancelEdit} style={{ backgroundColor: '#6c757d', color: 'white', padding: '8px 12px', borderRadius: '5px', border: 'none' }}>Abbrechen</button>

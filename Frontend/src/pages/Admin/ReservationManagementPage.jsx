@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import "./ReservationManagementPage.css";
 
 const API_BASE_URL = 'http://localhost:3001';
 
@@ -136,22 +135,6 @@ function ReservationManagementPage() {
         <div className="content-container">
             <h2>Reservierungsverwaltung</h2>
             {error && <p className="error-message">{error}</p>}
-
-            {/* Zurück-Button zum Dashboard */}
-            <button
-                onClick={() => navigate('/admin')}
-                style={{
-                    marginBottom: '15px',
-                    backgroundColor: '#007bff',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 12px',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                }}
-            >
-                ← Zurück zum Dashboard
-            </button>
 
             {reservations.length === 0 ? (
                 <p>Keine Reservierungen gefunden.</p>

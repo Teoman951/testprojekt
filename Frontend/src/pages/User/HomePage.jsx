@@ -43,40 +43,40 @@ function HomePage() {
   }, []);
 
   return (
-      <div className="content-container">
-        <h2>Unsere Fahrzeuge</h2>
-        {error && <p className="error-message">{error}</p>}
+    <div className="content-container">
+      <h2>Unsere Fahrzeuge</h2>
+      {error && <p className="error-message">{error}</p>}
 
-        <div className="car-grid">
-          {cars.map((car) => (
-              <div className="car-card" key={car.id}>
-                <img
-                    src={car.image || "/default-car.jpg"}
-                    alt={car.brand + " " + car.model}
-                    className="car-image"
-                />
-                <h3>
-                  {car.brand} {car.model}
-                </h3>
-                <p>
-                  {car.color} · Baujahr {car.year}
-                </p>
-                <p>
-                  <strong>{car.dailyRate} €</strong> pro Tag
-                </p>
-                <p>
-                  <em>{car.location}</em>
-                </p>
-                <button
-                    className="reserve-button"
-                    onClick={() => handleReserve(car.id)}
-                >
-                  Reservieren
-                </button>
-              </div>
-          ))}
-        </div>
+      <div className="car-grid">
+        {cars.map((car) => (
+          <div className="car-card" key={car.id}>
+            <img
+              src={car.image || "/default-car.jpg"}
+              alt={car.brand + " " + car.model}
+              className="car-image"
+            />
+            <h3>
+              {car.brand} {car.model}
+            </h3>
+            <p>
+              {car.color} · Baujahr {car.year}
+            </p>
+            <p>
+              <strong>{car.dailyRate} €</strong> pro Tag
+            </p>
+            <p>
+              <em>{car.location}</em>
+            </p>
+            <button
+              className="reserve-button"
+              onClick={() => handleReserve(car.id)}
+            >
+              Reservieren
+            </button>
+          </div>
+        ))}
       </div>
+    </div>
   );
 }
 

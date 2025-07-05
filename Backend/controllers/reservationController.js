@@ -1,4 +1,3 @@
-// Backend/controllers/reservationController.js
 import Reservation from '../models/Reservation.js';
 import Car from '../models/Car.js';
 import User from '../models/User.js';
@@ -21,7 +20,7 @@ export const createReservation = async (req, res) => {
             where: {
                 carId: carId,
                 [Op.or]: [
-                    { // Bestehende Reservierung überlappt den neuen Startzeitpunkt
+                    { // Neue Reservierung beginnt während einer bestehenden
                         startTime: { [Op.lt]: new Date(endTime) },
                         endTime: { [Op.gt]: new Date(startTime) }
                     }
@@ -77,11 +76,10 @@ export const getReservations = async (req, res) => {
     }
 };
 
-// NEU: Einzelne Reservierung nach ID abrufen
+// Reservierung nach ID abrufen
 export const getReservationById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const reservation = await Reservation.findByPk(id, {
+        const reservation = await Reservation.findByPk(req.params.id, {
             include: [
                 { model: User, attributes: ['id', 'username', 'email'] },
                 { model: Car, attributes: ['id', 'brand', 'model', 'licensePlate'] }
@@ -89,89 +87,82 @@ export const getReservationById = async (req, res) => {
         });
 
         if (!reservation) {
-            return res.status(404).json({ message: 'Reservierung nicht gefunden.' });
+            return res.status(404).json({ message: 'Reservation not found' });
         }
 
-        // Berechtigungsprüfung: Nur Admin oder der Besitzer der Reservierung darf abrufen
-        if (req.user.role !== 'admin' && req.user.id !== reservation.userId) {
-            return res.status(403).json({ message: 'Zugriff verweigert: Sie dürfen diese Reservierung nicht einsehen.' });
+        // Sicherstellen, dass nur der eigene Benutzer oder ein Admin die Reservierung sehen kann
+        if (req.user.role !== 'admin' && reservation.userId !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to view this reservation' });
         }
 
         res.json(reservation);
     } catch (error) {
-        console.error('getReservationById error:', error);
-        res.status(500).json({ message: 'Serverfehler beim Abrufen der Reservierung.' });
+        console.error('Get reservation by ID error:', error.message);
+        res.status(500).send('Server error');
     }
 };
 
-// Reservierung aktualisieren (Admin oder Besitzer)
+
+// Reservierung aktualisieren (Admin oder Besitzer, eingeschränkt)
 export const updateReservation = async (req, res) => {
+    const { id } = req.params;
+    const { startTime, endTime, status, totalCost, carId, userId } = req.body; // Admin könnte mehr ändern
+
     try {
-        const { id } = req.params;
-        const { startTime, endTime, status } = req.body; // Erlaubt das Aktualisieren von Zeiten und Status
-
-        const reservation = await Reservation.findByPk(id);
+        let reservation = await Reservation.findByPk(id);
         if (!reservation) {
-            return res.status(404).json({ message: 'Reservierung nicht gefunden.' });
+            return res.status(404).json({ message: 'Reservation not found' });
         }
 
-        // Berechtigungsprüfung: Nur Admin oder der Besitzer der Reservierung darf aktualisieren
-        if (req.user.role !== 'admin' && req.user.id !== reservation.userId) {
-            return res.status(403).json({ message: 'Zugriff verweigert: Sie dürfen diese Reservierung nicht aktualisieren.' });
+        // Nur Admin oder der Besitzer der Reservierung darf ändern
+        if (req.user.role !== 'admin' && reservation.userId !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to update this reservation' });
         }
 
-        // Aktualisiere Felder, wenn sie im Request-Body vorhanden sind
-        if (startTime !== undefined) reservation.startTime = startTime;
-        if (endTime !== undefined) reservation.endTime = endTime;
-        // Status darf nur von Admins oder Mitarbeitern geändert werden (oder spezifische Übergänge für Nutzer)
-        if (status !== undefined) {
-            if (req.user.role === 'admin' || req.user.role === 'mitarbeiter') {
+        // Benutzer darf nur bestimmte Felder ändern (z.B. Zeiträume, nicht Status oder Kosten)
+        // Admin darf alles ändern
+        if (req.user.role === 'admin') {
+            reservation.startTime = startTime || reservation.startTime;
+            reservation.endTime = endTime || reservation.endTime;
+            reservation.status = status || reservation.status;
+            reservation.totalCost = totalCost || reservation.totalCost;
+            reservation.carId = carId || reservation.carId;
+            reservation.userId = userId || reservation.userId;
+        } else {
+            // Normale Benutzer dürfen nur startTime und endTime ändern (oder stornieren)
+            reservation.startTime = startTime || reservation.startTime;
+            reservation.endTime = endTime || reservation.endTime;
+            if (status === 'cancelled') { // Beispiel: Benutzer kann nur stornieren
                 reservation.status = status;
-            } else {
-                // Optional: Erlaube Nutzern nur bestimmte Statusänderungen, z.B. von 'pending' zu 'cancelled'
-                if (status === 'cancelled' && reservation.status === 'pending') {
-                    reservation.status = status;
-                } else {
-                    return res.status(403).json({ message: 'Zugriff verweigert: Sie dürfen den Status nicht ändern.' });
-                }
-            }
-        }
-
-        // Optional: Neuberechnung der Kosten bei Zeitänderung
-        if (startTime !== undefined || endTime !== undefined) {
-            const car = await Car.findByPk(reservation.carId);
-            if (car) {
-                const durationMs = new Date(reservation.endTime).getTime() - new Date(reservation.startTime).getTime();
-                const durationHours = durationMs / (1000 * 60 * 60);
-                reservation.totalCost = parseFloat((car.dailyRate * (durationHours / 24)).toFixed(2));
             }
         }
 
         await reservation.save();
-        res.json({ message: 'Reservierung erfolgreich aktualisiert.', reservation });
+        res.json({ message: 'Reservation updated successfully', reservation });
     } catch (error) {
-        console.error('Update reservation error:', error);
-        res.status(500).json({ message: 'Serverfehler beim Aktualisieren der Reservierung.' });
+        console.error('Update reservation error:', error.message);
+        res.status(500).send('Server error');
     }
 };
 
+// Reservierung löschen (Admin oder Besitzer)
 export const deleteReservation = async (req, res) => {
+    const { id } = req.params;
     try {
-        const { id } = req.params;
         const reservation = await Reservation.findByPk(id);
         if (!reservation) {
-            return res.status(404).json({ message: 'Reservierung nicht gefunden.' });
+            return res.status(404).json({ message: 'Reservation not found' });
         }
 
-        // Berechtigungsprüfung: Nur Admin oder der Besitzer der Reservierung darf löschen
-        if (req.user.role !== 'admin' && req.user.id !== reservation.userId) {
-            return res.status(403).json({ message: 'Zugriff verweigert: Sie dürfen diese Reservierung nicht löschen.' });
+        // Nur Admin oder der Besitzer der Reservierung darf löschen
+        if (req.user.role !== 'admin' && reservation.userId !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to delete this reservation' });
         }
 
         await reservation.destroy();
-        res.json({ message: 'Reservierung erfolgreich gelöscht.' });
+        res.json({ message: 'Reservation deleted successfully' });
     } catch (error) {
-        console.error('Delete reservation error:', error);
-        res.status(500).json({ message: 'Serverfehler beim Löschen der Reservierung.' });
+        console.error('Delete reservation error:', error.message);
+        res.status(500).send('Server error');
     }
 };

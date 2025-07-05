@@ -8,7 +8,6 @@ function AdminRoute() {
     // Ruft den Token, die Benutzerrolle und den Ladezustand vom useAuth-Hook ab.
     const { token, userRole, loading } = useAuth();
 
-
     // Zeigt einen Ladezustand an, während der Authentifizierungsstatus geprüft wird.
     if (loading) {
         return <div className="content-container"><p>Lade Berechtigungen...</p></div>;
