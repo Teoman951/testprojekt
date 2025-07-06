@@ -1,0 +1,101 @@
+
+.content-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fafafa;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    color: #222;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.error-message {
+    color: #f44336;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+label {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+input, select {
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+/* Buttons */
+button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.2rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: flex-start;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+li {
+    background-color: white;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li button {
+    background-color: #dc3545;
+    font-size: 1rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+li button:hover {
+    background-color: #b02a37;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"] {
+    width: 100%;
+    box-sizing: border-box;
+}

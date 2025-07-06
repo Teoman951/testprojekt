@@ -70,8 +70,8 @@ const startServer = async () => {
         Rates.hasMany(User, { foreignKey: 'rateId' });
 
     //  Schema automatisch **angleichen**
-    await sequelize.sync({ alter: true }); 
-    console.log('All models synchronized (alter:true)');
+    await sequelize.sync({ force: true }); 
+    console.log('All models synchronized (force:true)');
 
     app.listen(PORT, () =>
       console.log(`Server is running on http://localhost:${PORT}`)
