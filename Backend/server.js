@@ -25,31 +25,23 @@ const PORT = process.env.PORT || 3001;
 
 /* ───────────────────── Middleware ─────────────────────── */
 
-// 1️⃣  JSON  +  URL-encoded  (für Text-Payloads)
+//  JSON  +  URL-encoded  (für Text-Payloads)
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));   //  <- NEU (für FormData-Fallbacks)
+app.use(express.urlencoded({ extended: true }));
 
-// 2️⃣  CORS  für dein Frontend
+//  CORS  für dein Frontend
 app.use(cors());
 
-//
+/* ───────────────────── Routen ─────────────────────────── */
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/rates', ratesRoutes);
 
-// 3️⃣  Static-Files: Führerschein-Bilder ausliefern
+//   Static-Files: Führerschein-Bilder ausliefern
 //     (Multer legt sie in uploads/licenses/ ab)
 app.use('/uploads', express.static('uploads'));    //  <- NEU
-
-/* ───────────────────── Routen ─────────────────────────── */
-
-app.use('/api/auth',         authRoutes);
-app.use('/api/users',        userRoutes);
-app.use('/api/cars',         carRoutes);
-app.use('/api/reservations', reservationRoutes);
-app.use('/api/rates',        ratesRoutes);
 
 app.get('/', (_req, res) => res.send('Welcome to the MoveSnart Backend!'));
 
@@ -70,8 +62,8 @@ const startServer = async () => {
         Rates.hasMany(User, { foreignKey: 'rateId' });
 
     //  Schema automatisch **angleichen**
-    await sequelize.sync({ force: true }); 
-    console.log('All models synchronized (force:true)');
+    await sequelize.sync({ alter: true }); 
+    console.log('All models synchronized (alter:true)');
 
     app.listen(PORT, () =>
       console.log(`Server is running on http://localhost:${PORT}`)
