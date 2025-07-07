@@ -4,6 +4,7 @@
 import express  from 'express';
 import cors     from 'cors';
 import dotenv   from 'dotenv';
+import { fileURLToPath } from 'url';
 
 import { connectDB, sequelize } from './config/database.js';
 
@@ -12,16 +13,23 @@ import userRoutes        from './routes/userRoutes.js';
 import carRoutes         from './routes/carRoutes.js';
 import reservationRoutes from './routes/reservationRoutes.js';
 import ratesRoutes       from './routes/ratesRoutes.js';
+import staffRoutes from './routes/staffRoutes.js';
 
 import User from './models/User.js';
 import Car from './models/Car.js';
 import Reservation from './models/Reservation.js';
 import Rates from './models/Rates.js';
+import path from "path";
+import staff from "./models/Staff.js";
 
 dotenv.config();
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 /* ───────────────────── Middleware ─────────────────────── */
 
@@ -38,10 +46,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/rates', ratesRoutes);
+app.use('/api/staff', staffRoutes)
 
 //   Static-Files: Führerschein-Bilder ausliefern
 //     (Multer legt sie in uploads/licenses/ ab)
-app.use('/uploads', express.static('uploads'));    //  <- NEU
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));   //  <- NEU
 
 app.get('/', (_req, res) => res.send('Welcome to the MoveSnart Backend!'));
 

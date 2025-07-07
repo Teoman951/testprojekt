@@ -140,7 +140,7 @@ function App() {
                 }
             />
             <Route
-                path="/admin/create-staff"
+                path="/admin/createStaff"
                 element={
                     <PrivateRoute requiredRole="admin">
                         <CreateStaffPage />
