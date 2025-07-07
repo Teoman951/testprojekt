@@ -2,10 +2,13 @@ import React from "react";
 import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import "./App.css"; // Stellt sicher, dass diese Datei existiert oder entfernt den Import
 
+import logoImg from "./assets/movesmart-logo.png";
+
 // Imports der ausgelagerten Komponenten - KORRIGIERTE PFADE
 import LoginPage from "./pages/Auth/LoginPage"; // Hinzufügen von './'
 import RegisterWizard from './pages/Auth/Register/RegisterWizard.jsx'; // Hinzufügen von './'
 import HomePage from "./pages/User/HomePage.jsx"; // Hinzufügen von './'
+import LandingPage from "./pages/LandingPage";
 import ProfilePage from "./pages/User/ProfilePage.jsx"; // Hinzufügen von './'
 import ReservationsPage from "./pages/User/ReservationsPage.jsx"; // Hinzufügen von './'
 import NewReservationPage from "./pages/User/NewReservationPage.jsx"; // Hinzufügen von './'
@@ -32,150 +35,144 @@ function App() {
 
   return (
     <div className="App">
-      <nav className="navbar">
-        <NavLink to="/" className="navbar-brand">
-          <img
-            src="/Logo Carsharing.jpg"
-            alt="MoveSmart Logo"
-            className="logo-img"
-          />
-          <span className="logo-text">MoveSmart</span>
-        </NavLink>
-        <div className="navbar-links">
-          {token ? ( // Navigationslinks, wenn der Benutzer angemeldet ist
-            <>
-              <NavLink to="/home">Home</NavLink>
-              <NavLink to="/profile">Profil</NavLink>
-              <NavLink to="/reservations">Reservierungen</NavLink>
-              <NavLink to="/aboutus">Über Uns</NavLink>
-                <NavLink to="/rates">Tarife</NavLink>
-              {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
+<nav className="navbar flex items-center justify-between px-6 py-4 shadow relative z-50">
+  {/* Brand: Logo + Text */}
+  <NavLink to="/" className="flex items-center gap-2">
+    <img src={logoImg} alt="MoveSmart Logo" className="h-8 w-auto" />
+    <span className="text-xl font-extrabold bg-gradient-to-r from-brand-start
+                                     via-brand-mid to-brand-end bg-clip-text text-transparent drop-shadow">
+  MoveSmart
+</span>
 
-                {/* Admin Links */}
-                {userRole === 'admin' && (
-                    <>
-                        <NavLink to="/admin/dashboard">Admin-Dashboard</NavLink>
-                    </>
-                )}
-              <button
-                onClick={() => {
-                  logout();
-                  navigate("/login");
-                }}
-                className="nav-button"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            // Navigationslinks, wenn der Benutzer NICHT angemeldet ist
-            <>
-              <NavLink to="/home">Home</NavLink>
-              <NavLink to="/aboutus">Über Uns</NavLink>
-              <NavLink to="/login">Login</NavLink>
-              <NavLink to="/register">Registrieren</NavLink>
-            </>
-          )}
-        </div>
-      </nav>
+  </NavLink>
+
+  {/* Rechts: alle Navigationslinks */}
+  <div className="navbar-links flex gap-6 items-center">
+    {token ? (
+      <>
+        <NavLink to="/home">Dashboard</NavLink>
+        <NavLink to="/profile">Profil</NavLink>
+        <NavLink to="/reservations">Reservierungen</NavLink>
+        <NavLink to="/aboutus">Über&nbsp;Uns</NavLink>
+        <NavLink to="/rates">Tarife</NavLink>
+
+        {userRole === "admin" && (
+          <NavLink to="/admin/dashboard">Admin-Dashboard</NavLink>
+        )}
+
+        <button
+          onClick={() => {
+            logout();
+            navigate("/login");
+          }}
+          className="nav-button"
+        >
+          Logout
+        </button>
+      </>
+    ) : (
+      <>
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/rates">Tarife</NavLink>
+        <NavLink to="/aboutus">Über&nbsp;Uns</NavLink>
+        <NavLink to="/login">Login</NavLink>
+        <NavLink to="/register">Registrieren</NavLink>
+      </>
+    )}
+  </div>
+</nav>
 
       <main>
         <Routes>
-          {/* Routen, die immer erreichbar sind */}
-          {/* onLoginSuccess wird nun vom useAuth-Hook bereitgestellt */}
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/aboutus" element={<AboutUsPage />} />
 
-          <Route path="/login" element={<LoginPage onLoginSuccess={login} />} />
-           {/*  Wizard-Hauptroute  */}
-          <Route path="/register/*" element={<RegisterWizard />} />
-  
-          {/* Geschützte Routen (nur zugänglich, wenn ein Token vorhanden ist) */}
-          <Route
-            path="/home"
-            element={
-              <PrivateRoute>
-                <HomePage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <ProfilePage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/reservations"
-            element={
-              <PrivateRoute>
-                <ReservationsPage />
-              </PrivateRoute>
-            }
-          /> {/*Admin-Routen */}
-            <Route
-                path="/admin/dashboard"
-                element={
-                    <PrivateRoute requiredRole="admin">
-                        <AdminDashboardPage />
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/admin/cars"
-                element={
-                    <PrivateRoute requiredRole="admin">
-                        <CarManagementPage />
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/admin/users"
-                element={
-                    <PrivateRoute requiredRole="admin">
-                        <UserManagementPage />
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/admin/createStaff"
-                element={
-                    <PrivateRoute requiredRole="admin">
-                        <CreateStaffPage />
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/admin/reservations"
-                element={
-                    <PrivateRoute requiredRole="admin">
-                        <ReservationManagementPage />
-                    </PrivateRoute>
-                }
-            />
-            <Route
-            path="/new-reservation/:id" // :id als URL-Param
-            element={
-              <PrivateRoute>
-                <NewReservationPage />
-              </PrivateRoute>
-            }
-            />
-            <Route path="/rates" element={<RatesPage />} />
-          {/* Standard-Route für den Start oder unbekannte Pfade */}
-          {/* Leitet zur Startseite um, wenn eingeloggt, sonst zur Login-Seite */}
-          <Route path="/" element={<HomePage />} />
-          <Route
-            path="*"
-            element={
-              <h2 className="content-container">Seite nicht gefunden (404)</h2>
-            }
-          />
-          {/* 404-Fallback */}
-          <Route path="*" element={<p>404 – Seite nicht gefunden</p>} />
-        </Routes>
+  {/* Öffentliche Seiten */}
+  <Route path="/" element={<LandingPage />} />
+  <Route path="/aboutus" element={<AboutUsPage />} />
+  <Route path="/login" element={<LoginPage onLoginSuccess={login} />} />
+  <Route path="/register/*" element={<RegisterWizard />} />
+  <Route path="/rates" element={<RatesPage />} />
+
+  {/* Geschützte Nutzer-Routen */}
+  <Route
+    path="/home"
+    element={
+      <PrivateRoute>
+        <HomePage />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/profile"
+    element={
+      <PrivateRoute>
+        <ProfilePage />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/reservations"
+    element={
+      <PrivateRoute>
+        <ReservationsPage />
+      </PrivateRoute>
+    }
+  />
+
+  {/* Geschützte Admin-Routen (Role-Check inside <PrivateRoute requiredRole="admin" />) */}
+  <Route
+    path="/admin/dashboard"
+    element={
+      <PrivateRoute requiredRole="admin">
+        <AdminDashboardPage />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/admin/cars"
+    element={
+      <PrivateRoute requiredRole="admin">
+        <CarManagementPage />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/admin/users"
+    element={
+      <PrivateRoute requiredRole="admin">
+        <UserManagementPage />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/admin/create-staff"
+    element={
+      <PrivateRoute requiredRole="admin">
+        <CreateStaffPage />
+      </PrivateRoute>
+    }
+  />
+  <Route
+    path="/admin/reservations"
+    element={
+      <PrivateRoute requiredRole="admin">
+        <ReservationManagementPage />
+      </PrivateRoute>
+    }
+  />
+
+  {/* Reservierung per ID – nur eingeloggt */}
+  <Route
+    path="/new-reservation/:id"
+    element={
+      <PrivateRoute>
+        <NewReservationPage />
+      </PrivateRoute>
+    }
+  />
+
+  {/* Fallback für unbekannte Pfade */}
+  <Route path="*" element={<h2 className="content-container">404 – Seite nicht gefunden</h2>} />
+</Routes>
       </main>
     </div>
   );
