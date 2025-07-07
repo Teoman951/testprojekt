@@ -135,8 +135,8 @@ function UserManagementPage() {
         setEditCardNo('');
         setEditCardExp('');
         setEditCardCvc('');
-        setEditLicenseFrontFile(null);
-        setEditLicenseBackFile(null);
+        setEditLicenseFront(null);
+        setEditLicenseBack(null);
         setError('');
     };
 
@@ -148,11 +148,16 @@ function UserManagementPage() {
             return;
         }
 
+        // Existierenden User anhand der editUserId finden
+        const currentUser = users.find(u => u.id === editUserId);
+        const alreadyHasFrontFile = currentUser?.licenseFrontPath;
+        const alreadyHasBackFile = currentUser?.licenseBackPath;
+
         // Nur bei 'user' Rolle Pflichtfelder prüfen
         if (editRole === 'user') {
             if (
                 !editLicenseNo || !editLicenseIssue || !editLicenseExpiry ||
-                (!editLicenseFront && !alreadyHasFrontFile) || // hier musst du prüfen, ob bereits was existiert
+                (!editLicenseFront && !alreadyHasFrontFile) ||
                 (!editLicenseBack && !alreadyHasBackFile) ||
                 !editPayType ||
                 (editPayType === 'sepa' && (!editIban || !editBic)) ||
@@ -212,11 +217,11 @@ function UserManagementPage() {
         // Nur bei 'user' Rolle Pflichtfelder prüfen
         if (newRole === 'user') {
             if (
-                !newLicenseNo || !newLicenseIssue || !newLicenseExpiry || !newLicenseFront || !newLicenseBack ||
+                !newLicenseNo || !newLicenseIssue || !newLicenseExpiry ||
+                (!newLicenseFront && !newLicenseBack) ||  // mind. eine Datei erforderlich
                 !newPayType ||
                 (newPayType === 'sepa' && (!newIban || !newBic)) ||
                 (newPayType === 'card' && (!newCardNo || !newCardExp || !newCardCvc))
-
             ) {
                 setError('Bitte alle erforderlichen Führerschein- und Zahlungsfelder ausfüllen.');
                 return;
@@ -290,7 +295,7 @@ function UserManagementPage() {
 
             {/* Zurück-Button zum Dashboard */}
             <button
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate('/admin/dashboard')}
                 style={{
                     marginBottom: '15px',
                     backgroundColor: '#007bff',
@@ -305,9 +310,11 @@ function UserManagementPage() {
             </button>
 
             {/* Formular zum Erstellen eines neuen Benutzers */}
+            {/* ... (dein bereits existierendes Formular) */}
+            {/* Neues Benutzer erstellen Formular */}
             <h3>Neuen Benutzer erstellen</h3>
             <form onSubmit={handleCreateUser}
-                  style={{marginBottom: '30px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px'}}>
+                  style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
                 <div className="form-group">
                     <label htmlFor="newUsername">Benutzername:</label>
                     <input type="text" id="newUsername" value={newUsername}
@@ -422,7 +429,17 @@ function UserManagementPage() {
                         <th style={tableHeaderStyle}>Benutzername</th>
                         <th style={tableHeaderStyle}>E-Mail</th>
                         <th style={tableHeaderStyle}>Rolle</th>
-                        <th style={tableHeaderStyle}></th>
+                        <th style={tableHeaderStyle}>Führerschein Nr.</th>
+                        <th style={tableHeaderStyle}>Ausstellung</th>
+                        <th style={tableHeaderStyle}>Ablauf</th>
+                        <th style={tableHeaderStyle}>Führerschein Vorne</th>
+                        <th style={tableHeaderStyle}>Führerschein Hinten</th>
+                        <th style={tableHeaderStyle}>Zahlungsart</th>
+                        <th style={tableHeaderStyle}>IBAN</th>
+                        <th style={tableHeaderStyle}>BIC</th>
+                        <th style={tableHeaderStyle}>Kartennummer</th>
+                        <th style={tableHeaderStyle}>Kartenablauf</th>
+                        <th style={tableHeaderStyle}>CVC</th>
                         <th style={tableHeaderStyle}>Aktionen</th>
                     </tr>
                     </thead>
@@ -430,28 +447,38 @@ function UserManagementPage() {
                     {users.map((user) => (
                         <tr key={user.id} style={{ borderBottom: '1px solid #ddd' }}>
                             {editUserId === user.id ? (
-                                <td colSpan="5">
-                                    <form onSubmit={handleUpdate} style={{
-                                        display: 'flex',
-                                        gap: '10px',
-                                        alignItems: 'center',
-                                        padding: '10px 0',
-                                        flexWrap: 'wrap'
-                                    }}>
-                                        <input type="text" value={editUsername}
-                                               onChange={(e) => setEditUsername(e.target.value)} required
-                                               style={inputStyle}/>
-                                        <input type="email" value={editEmail}
-                                               onChange={(e) => setEditEmail(e.target.value)} required
-                                               style={inputStyle}/>
-                                        <select value={editRole} onChange={(e) => setEditRole(e.target.value)}
-                                                style={selectStyle}>
+                                <>
+                                    <td style={tableCellStyle}>{user.id}</td>
+                                    <td style={tableCellStyle}>
+                                        <input
+                                            type="text"
+                                            value={editUsername}
+                                            onChange={(e) => setEditUsername(e.target.value)}
+                                            required
+                                            style={inputStyle}
+                                        />
+                                    </td>
+                                    <td style={tableCellStyle}>
+                                        <input
+                                            type="email"
+                                            value={editEmail}
+                                            onChange={(e) => setEditEmail(e.target.value)}
+                                            required
+                                            style={inputStyle}
+                                        />
+                                    </td>
+                                    <td style={tableCellStyle}>
+                                        <select
+                                            value={editRole}
+                                            onChange={(e) => setEditRole(e.target.value)}
+                                            style={selectStyle}
+                                        >
                                             <option value="user">user</option>
                                             <option value="mitarbeiter">mitarbeiter</option>
                                             <option value="admin">admin</option>
                                         </select>
-
-                                        {/* Führerschein */}
+                                    </td>
+                                    <td style={tableCellStyle}>
                                         <input
                                             type="text"
                                             placeholder="Führerschein Nr."
@@ -460,6 +487,8 @@ function UserManagementPage() {
                                             required={editRole === 'user'}
                                             style={inputStyle}
                                         />
+                                    </td>
+                                    <td style={tableCellStyle}>
                                         <input
                                             type="date"
                                             placeholder="Ausstellungsdatum"
@@ -468,6 +497,8 @@ function UserManagementPage() {
                                             required={editRole === 'user'}
                                             style={inputStyle}
                                         />
+                                    </td>
+                                    <td style={tableCellStyle}>
                                         <input
                                             type="date"
                                             placeholder="Ablaufdatum"
@@ -476,6 +507,8 @@ function UserManagementPage() {
                                             required={editRole === 'user'}
                                             style={inputStyle}
                                         />
+                                    </td>
+                                    <td style={tableCellStyle}>
                                         <input
                                             type="file"
                                             onChange={(e) => setEditLicenseFront(e.target.files[0])}
@@ -484,6 +517,8 @@ function UserManagementPage() {
                                             required={editRole === 'user'}
                                             title="Führerschein Vorderseite"
                                         />
+                                    </td>
+                                    <td style={tableCellStyle}>
                                         <input
                                             type="file"
                                             onChange={(e) => setEditLicenseBack(e.target.files[0])}
@@ -492,95 +527,139 @@ function UserManagementPage() {
                                             required={editRole === 'user'}
                                             title="Führerschein Rückseite"
                                         />
+                                    </td>
+                                    <td style={tableCellStyle}>
+                                        <div style={{
+                                            display: 'flex',
+                                            gap: '8px',
+                                            alignItems: 'center',
+                                            flexWrap: 'wrap'
+                                        }}>
+                                            {/* Zahlungsart-Auswahl */}
+                                            <select
+                                                value={editPayType}
+                                                onChange={(e) => setEditPayType(e.target.value)}
+                                                style={selectStyle}
+                                                required
+                                            >
+                                                <option value="card">Kreditkarte</option>
+                                                <option value="sepa">SEPA</option>
+                                                <option value="paypal">PayPal</option>
+                                            </select>
 
-                                        {/* Zahlungsmethode */}
-                                        <select
-                                            value={editPayType}
-                                            onChange={(e) => setEditPayType(e.target.value)}
-                                            style={selectStyle}
-                                            required
-                                        >
-                                            <option value="card">Kreditkarte</option>
-                                            <option value="sepa">SEPA</option>
-                                            <option value="paypal">PayPal</option>
-                                        </select>
+                                            {/* SEPA-Felder */}
+                                            {editPayType === 'sepa' && (
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="IBAN"
+                                                        value={editIban}
+                                                        onChange={(e) => setEditIban(e.target.value)}
+                                                        required
+                                                        style={inputStyle}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="BIC"
+                                                        value={editBic}
+                                                        onChange={(e) => setEditBic(e.target.value)}
+                                                        required
+                                                        style={inputStyle}
+                                                    />
+                                                </>
+                                            )}
 
-                                        {editPayType === 'sepa' && (
-                                            <>
-                                                <input
-                                                    type="text"
-                                                    placeholder="IBAN"
-                                                    value={editIban}
-                                                    onChange={(e) => setEditIban(e.target.value)}
-                                                    required
-                                                    style={inputStyle}
-                                                />
-                                                <input
-                                                    type="text"
-                                                    placeholder="BIC"
-                                                    value={editBic}
-                                                    onChange={(e) => setEditBic(e.target.value)}
-                                                    required
-                                                    style={inputStyle}
-                                                />
-                                            </>
-                                        )}
-                                        {editPayType === 'card' && (
-                                            <>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Kartennummer"
-                                                    value={editCardNo}
-                                                    onChange={(e) => setEditCardNo(e.target.value)}
-                                                    required
-                                                    style={inputStyle}
-                                                />
-                                                <input
-                                                    type="month"
-                                                    placeholder="Kartenablauf"
-                                                    value={editCardExp}
-                                                    onChange={(e) => setEditCardExp(e.target.value)}
-                                                    required
-                                                    style={inputStyle}
-                                                />
-                                                <input
-                                                    type="text"
-                                                    placeholder="CVC"
-                                                    value={editCardCvc}
-                                                    onChange={(e) => setEditCardCvc(e.target.value)}
-                                                    required
-                                                    style={inputStyle}
-                                                />
-                                            </>
-                                        )}
+                                            {/* Kreditkarten-Felder */}
+                                            {editPayType === 'card' && (
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Kartennummer"
+                                                        value={editCardNo}
+                                                        onChange={(e) => setEditCardNo(e.target.value)}
+                                                        required
+                                                        style={inputStyle}
+                                                    />
+                                                    <input
+                                                        type="month"
+                                                        placeholder="Ablauf"
+                                                        value={editCardExp}
+                                                        onChange={(e) => setEditCardExp(e.target.value)}
+                                                        required
+                                                        style={inputStyle}
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="CVC"
+                                                        value={editCardCvc}
+                                                        onChange={(e) => setEditCardCvc(e.target.value)}
+                                                        required
+                                                        style={inputStyle}
+                                                    />
+                                                </>
+                                            )}
+                                        </div>
+                                    </td>
 
-                                        <button type="submit" style={buttonStyleSave}>Speichern</button>
-                                        <button type="button" onClick={handleCancelEdit}
-                                                style={buttonStyleCancel}>Abbrechen
+
+                                    <td style={tableCellStyle}>
+                                        <button type="button" onClick={handleUpdate} style={buttonStyleSave}>
+                                            Speichern
                                         </button>
-                                    </form>
-                                </td>
+                                        <button type="button" onClick={handleCancelEdit} style={buttonStyleCancel}>
+                                            Abbrechen
+                                        </button>
+                                    </td>
+                                </>
                             ) : (
                                 <>
                                     <td style={tableCellStyle}>{user.id}</td>
                                     <td style={tableCellStyle}>{user.username}</td>
                                     <td style={tableCellStyle}>{user.email}</td>
                                     <td style={tableCellStyle}>{user.role}</td>
+                                    <td style={tableCellStyle}>{user.licenseNo}</td>
+                                    <td style={tableCellStyle}>{user.licenseIssue}</td>
+                                    <td style={tableCellStyle}>{user.licenseExpiry}</td>
                                     <td style={tableCellStyle}>
-                                        {/* Bearbeiten-Button nur wenn nicht eigener Admin */}
-                                        {!(user.role === 'admin' && user.id === currentUserId) && (
-                                            <button
-                                                onClick={() => handleEditClick(user)}
-                                                style={buttonStyleEdit}
+                                        {user.licenseFrontPath ? (
+                                            <a
+                                                href={`${API_BASE_URL}/uploads/licenses/${user.licenseFrontPath}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                             >
+                                                Ansehen
+                                            </a>
+                                        ) : (
+                                            '–'
+                                        )}
+                                    </td>
+                                    <td style={tableCellStyle}>
+                                        {user.licenseBackPath ? (
+                                            <a
+                                                href={`${API_BASE_URL}/uploads/licenses/${user.licenseBackPath}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Ansehen
+                                            </a>
+                                        ) : (
+                                            '–'
+                                        )}
+                                    </td>
+                                    <td style={tableCellStyle}>{user.payType}</td>
+                                    <td style={tableCellStyle}>{user.iban}</td>
+                                    <td style={tableCellStyle}>{user.bic}</td>
+                                    <td style={tableCellStyle}>{user.cardNo}</td>
+                                    <td style={tableCellStyle}>{user.cardExp}</td>
+                                    <td style={tableCellStyle}>{user.cardCvc}</td>
+                                    <td style={tableCellStyle}>
+                                        {!(user.role === 'admin' && user.id === currentUserId) && (
+                                            <button onClick={() => handleEditClick(user)} style={buttonStyleEdit}>
                                                 Bearbeiten
                                             </button>
                                         )}
                                         {user.role !== 'admin' && (
-                                            <button
-                                                onClick={() => handleDelete(user.id)}
-                                                style={buttonStyleDelete}
-                                            >
+                                            <button onClick={() => handleDelete(user.id)} style={buttonStyleDelete}>
                                                 Löschen
                                             </button>
                                         )}
@@ -593,8 +672,8 @@ function UserManagementPage() {
                 </table>
             )}
         </div>
-    );
-}
+    )}
+
 
 // Inline-Styles für die Tabelle (könnten auch in CSS-Datei ausgelagert werden)
 const tableHeaderStyle = {
@@ -605,7 +684,9 @@ const tableHeaderStyle = {
 
 const tableCellStyle = {
     padding: '8px',
+    textAlign: 'left',
     borderBottom: '1px solid #ddd',
+    minWidth: '10px'
 };
 
 const inputStyle = {
@@ -613,7 +694,7 @@ const inputStyle = {
     border: '1px solid #ccc',
     borderRadius: '4px',
     flex: '1',
-    minWidth: '150px',
+    minWidth: '10px',
 };
 
 const selectStyle = {
@@ -661,5 +742,4 @@ const buttonStyleCancel = {
     cursor: 'pointer',
     marginLeft: '5px',
 };
-
 export default UserManagementPage;
