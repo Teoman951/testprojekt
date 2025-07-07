@@ -1,10 +1,18 @@
 import { Link } from "react-router-dom";
+import logoImg from "../assets/movesmart-logo.png";
 
 export default function Hero() {
   return (
     <section className="relative isolate overflow-hidden min-h-[90vh] flex flex-col items-center justify-center text-center px-6">
       {/* Gradient-Hintergrund */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-start via-brand-mid to-brand-end opacity-80" />
+      <div className="absolute inset-0 -z-20 flex items-start justify-center pt-24">
+  <img
+    src={logoImg}                // Logo aus assets importieren
+    alt=""
+    className="h-64 w-auto opacity-50 select-none pointer-events-none"
+  />
+</div>
 
       {/* Glas-Card */}
       <div className="backdrop-blur-sm bg-white/10 rounded-3xl p-8 shadow-xl">
