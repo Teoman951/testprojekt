@@ -135,8 +135,8 @@ function UserManagementPage() {
         setEditCardNo('');
         setEditCardExp('');
         setEditCardCvc('');
-        setEditLicenseFrontFile(null);
-        setEditLicenseBackFile(null);
+        setEditLicenseFront(null);
+        setEditLicenseBack(null);
         setError('');
     };
 
@@ -148,11 +148,16 @@ function UserManagementPage() {
             return;
         }
 
+        // Existierenden User anhand der editUserId finden
+        const currentUser = users.find(u => u.id === editUserId);
+        const alreadyHasFrontFile = currentUser?.licenseFrontPath;
+        const alreadyHasBackFile = currentUser?.licenseBackPath;
+
         // Nur bei 'user' Rolle Pflichtfelder prüfen
         if (editRole === 'user') {
             if (
                 !editLicenseNo || !editLicenseIssue || !editLicenseExpiry ||
-                (!editLicenseFront && !alreadyHasFrontFile) || // hier musst du prüfen, ob bereits was existiert
+                (!editLicenseFront && !alreadyHasFrontFile) ||
                 (!editLicenseBack && !alreadyHasBackFile) ||
                 !editPayType ||
                 (editPayType === 'sepa' && (!editIban || !editBic)) ||
@@ -212,11 +217,11 @@ function UserManagementPage() {
         // Nur bei 'user' Rolle Pflichtfelder prüfen
         if (newRole === 'user') {
             if (
-                !newLicenseNo || !newLicenseIssue || !newLicenseExpiry || !newLicenseFront || !newLicenseBack ||
+                !newLicenseNo || !newLicenseIssue || !newLicenseExpiry ||
+                (!newLicenseFront && !newLicenseBack) ||  // mind. eine Datei erforderlich
                 !newPayType ||
                 (newPayType === 'sepa' && (!newIban || !newBic)) ||
                 (newPayType === 'card' && (!newCardNo || !newCardExp || !newCardCvc))
-
             ) {
                 setError('Bitte alle erforderlichen Führerschein- und Zahlungsfelder ausfüllen.');
                 return;
@@ -679,7 +684,9 @@ const tableHeaderStyle = {
 
 const tableCellStyle = {
     padding: '8px',
+    textAlign: 'left',
     borderBottom: '1px solid #ddd',
+    minWidth: '10px'
 };
 
 const inputStyle = {
@@ -687,7 +694,7 @@ const inputStyle = {
     border: '1px solid #ccc',
     borderRadius: '4px',
     flex: '1',
-    minWidth: '150px',
+    minWidth: '10px',
 };
 
 const selectStyle = {
@@ -736,3 +743,4 @@ const buttonStyleCancel = {
     marginLeft: '5px',
 };
 export default UserManagementPage;
+

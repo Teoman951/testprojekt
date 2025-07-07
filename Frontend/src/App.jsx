@@ -59,6 +59,9 @@ function App() {
         {userRole === "admin" && (
           <NavLink to="/admin/dashboard">Admin-Dashboard</NavLink>
         )}
+          {userRole === "staff" && (
+              <NavLink to="/mitarbeiter/dashboard">Mitarbeiter-Dashboard</NavLink>
+          )}
 
         <button
           onClick={() => {
