@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
+
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +22,7 @@ async function createAdmin() {
         return;
     }
 
-    const passwordHash = await bcrypt.hash('AdminPass123!', 10);
+    const passwordHash = await bcrypt.hash('12345', 10);
 
     const adminUser = await User.create({
         username: 'admin',

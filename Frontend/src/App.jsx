@@ -17,10 +17,16 @@ import PrivateRoute from "./components/PrivateRoute"; // Hinzufügen von './'
 
 // Import des Auth Hooks - KORRIGIERTER PFAD
 import useAuth from "./hooks/useAuth";
-import AboutUs from "./pages/User/AboutUsPage.jsx"; // Hinzufügen von './'
+import AboutUs from "./pages/User/AboutUsPage.jsx";
+import AdminDashboard from "./pages/Admin/AdminDashboardPage.jsx";
+import ReservationManagementPage from "./pages/Admin/ReservationManagementPage.jsx";
+import CreateStaffPage from "./pages/Admin/CreateStaffPage.jsx";
+import AdminDashboardPage from "./pages/Admin/AdminDashboardPage.jsx";
+import CarManagementPage from "./pages/Admin/CarManagementPage.jsx";
+import UserManagementPage from "./pages/Admin/UserManagementPage.jsx"; // Hinzufügen von './'
 // --- Hauptkomponente der React-Anwendung ---
 function App() {
-  const { token, login, logout } = useAuth(); // Nutzung des Custom Hooks
+  const { token,userRole, login, logout } = useAuth(); // Nutzung des Custom Hooks
 
   const navigate = useNavigate();
 
@@ -44,6 +50,13 @@ function App() {
               <NavLink to="/aboutus">Über Uns</NavLink>
                 <NavLink to="/rates">Tarife</NavLink>
               {/* Beim Logout rufen wir logout() vom Hook auf und leiten dann um */}
+
+                {/* Admin Links */}
+                {userRole === 'admin' && (
+                    <>
+                        <NavLink to="/admin/dashboard">Admin-Dashboard</NavLink>
+                    </>
+                )}
               <button
                 onClick={() => {
                   logout();
@@ -101,15 +114,55 @@ function App() {
                 <ReservationsPage />
               </PrivateRoute>
             }
-          />
-          <Route
+          /> {/*Admin-Routen */}
+            <Route
+                path="/admin/dashboard"
+                element={
+                    <PrivateRoute requiredRole="admin">
+                        <AdminDashboardPage />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/admin/cars"
+                element={
+                    <PrivateRoute requiredRole="admin">
+                        <CarManagementPage />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/admin/users"
+                element={
+                    <PrivateRoute requiredRole="admin">
+                        <UserManagementPage />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/admin/create-staff"
+                element={
+                    <PrivateRoute requiredRole="admin">
+                        <CreateStaffPage />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/admin/reservations"
+                element={
+                    <PrivateRoute requiredRole="admin">
+                        <ReservationManagementPage />
+                    </PrivateRoute>
+                }
+            />
+            <Route
             path="/new-reservation/:id" // :id als URL-Param
             element={
               <PrivateRoute>
                 <NewReservationPage />
               </PrivateRoute>
             }
-          />
+            />
             <Route path="/rates" element={<RatesPage />} />
           {/* Standard-Route für den Start oder unbekannte Pfade */}
           {/* Leitet zur Startseite um, wenn eingeloggt, sonst zur Login-Seite */}
