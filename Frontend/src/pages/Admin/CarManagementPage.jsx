@@ -233,6 +233,22 @@ function CarManagementPage() {
             <h2>Fahrzeugverwaltung</h2>
             {error && <p className="error-message">{error}</p>}
 
+            {/* Zurück-Button zum Dashboard */}
+            <button
+                onClick={() => navigate('/admin/dashboard')}
+                style={{
+                    marginBottom: '15px',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                }}
+            >
+                ← Zurück zum Dashboard
+            </button>
+
             {/* Formular zum Erstellen eines neuen Fahrzeugs */}
             <h3>Neues Fahrzeug hinzufügen</h3>
             <form onSubmit={handleCreateCar} style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
