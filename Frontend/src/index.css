@@ -5,5 +5,15 @@
 
 
 @layer utilities {
+    .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white
+            bg-gradient-to-r from-brand-start via-brand-mid to-brand-end shadow-lg
+            transition hover:brightness-110 active:scale-[.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold
+           text-white/90 ring-2 ring-white/40 backdrop-blur-sm
+           transition hover:bg-white/10 active:scale-[.98];
+            }
   
 }
