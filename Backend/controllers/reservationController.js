@@ -87,7 +87,8 @@ export const getReservations = async (req, res) => {
         res.json(reservations);
     } catch (error) {
         console.error('Get reservations error:', error.message);
-        res.status(500).send('Server error');
+        // Sende JSON-Antwort im Fehlerfall
+        res.status(500).json({ message: 'Server error while fetching reservations.' });
     }
 };
 

@@ -24,18 +24,29 @@ function ReservationsPage() {
                         'x-auth-token': token
                     }
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    setReservations(data);
-                } else {
-                    setError(data.message || 'Reservierungen konnten nicht geladen werden.');
+
+                if (!response.ok) {
+                    let errorData;
+                    try {
+                        errorData = await response.json();
+                    } catch (jsonError) {
+                        setError(`Fehler beim Laden der Reservierungen (Status: ${response.status}). Serverantwort nicht lesbar.`);
+                        console.error('Server error response not JSON:', response);
+                        return;
+                    }
+                    setError(errorData.message || `Reservierungen konnten nicht geladen werden (Status: ${response.status}).`);
                     if (response.status === 401) {
-                        localStorage.removeItem('authToken'); // Token entfernen, wenn nicht autorisiert
+                        localStorage.removeItem('authToken');
                         navigate('/login');
                     }
+                    return;
                 }
+
+                const data = await response.json(); // Sicher, da response.ok
+                setReservations(data);
+
             } catch (err) {
-                setError('Netzwerkfehler beim Laden der Reservierungen. Server nicht erreichbar?');
+                setError('Netzwerkfehler beim Laden der Reservierungen. Server nicht erreichbar? Bitte Serververbindung prüfen.');
                 console.error('Reservations fetch error:', err);
             }
         };

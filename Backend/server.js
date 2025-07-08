@@ -72,12 +72,9 @@ const startServer = async () => {
         User.belongsTo(Rates, { foreignKey: 'rateId', as: 'AssignedRate' });
         Rates.hasMany(User, { foreignKey: 'rateId' });
 
-    //  Schema automatisch **angleichen** - Temporär auskommentiert, um ForeignKeyConstraintError zu vermeiden
-    // await sequelize.sync({ alter: true });
-    // console.log('All models synchronized (alter:true)');
-    // Stattdessen könnte man hier prüfen, ob die DB überhaupt erreichbar ist, ohne Schemaänderungen zu versuchen:
-    await sequelize.authenticate();
-    console.log('Database connection successful. Model synchronization (alter:true) is commented out.');
+    //  Schema automatisch **angleichen** - Temporär wieder aktiviert, um userId und carId in reservations zu erstellen
+    await sequelize.sync({ alter: true });
+    console.log('All models synchronized (alter:true). REMEMBER TO COMMENT THIS OUT AGAIN OR REPLACE WITH AUTHENTICATE AFTER SCHEMA IS FIXED.');
 
     app.listen(PORT, () =>
       console.log(`Server is running on http://localhost:${PORT}`)
