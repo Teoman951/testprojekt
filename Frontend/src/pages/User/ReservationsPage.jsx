@@ -90,13 +90,29 @@ function ReservationsPage() {
                             Von: {new Date(res.startTime).toLocaleString()} |
                             Bis: {new Date(res.endTime).toLocaleString()} |
                             Status: {res.status} |
-                            Kosten: {res.totalCost ? `${res.totalCost.toFixed(2)} €` : 'N/A'}
-                            <button onClick={() => handleDelete(res.id)} style={{ marginLeft: '10px' }}>Löschen</button> {/* ID von _id auf id geändert */}
+                            Kosten: {res.totalCost ? `${res.totalCost.toFixed(2)} €` : 'N/A'} |
+                            Abgabeort: {res.dropOffLocation || (res.Car ? res.Car.location : 'Wie Abholort')} {/* Zeige dropOffLocation oder Standard */}
+                            <div style={{ marginTop: '5px' }}>
+                                <button
+                                    onClick={() => navigate(`/edit-reservation/${res.id}`)}
+                                    style={{ marginLeft: '0px', marginRight: '10px', backgroundColor: '#ffc107', color: 'black', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}
+                                >
+                                    Bearbeiten
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(res.id)}
+                                    style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}
+                                >
+                                    Löschen
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>
             )}
-            <Link to="/new-reservation" style={{ display: 'block', marginTop: '20px' }}>Neue Reservierung hinzufügen</Link>
+            {/* Der Link zu /new-reservation ist hier vielleicht nicht mehr ideal, da man von der HomePage startet.
+                Könnte entfernt oder beibehalten werden, je nach gewünschtem User Flow. Ich lasse ihn vorerst. */}
+            <Link to="/home" style={{ display: 'block', marginTop: '20px' }}>Zur Fahrzeugauswahl</Link>
         </div>
     );
 }

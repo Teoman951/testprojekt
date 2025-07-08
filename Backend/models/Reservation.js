@@ -26,6 +26,10 @@ const Reservation = sequelize.define('Reservation', {
         allowNull: false,
         defaultValue: 'pending',
     },
+    dropOffLocation: { // Neuer Abgabepunkt
+        type: DataTypes.STRING,
+        allowNull: true, // Optional, da er möglicherweise nicht immer vom Abholort abweicht
+    }
 });
 
 // Definition der Assoziationen

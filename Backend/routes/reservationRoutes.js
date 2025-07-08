@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import authMiddleware, { authorizeRoles } from '../middleware/authMiddleware.js';
+// createReservation wieder hinzugefügt
 import { createReservation, getReservations, getReservationById, updateReservation, deleteReservation } from '../controllers/reservationController.js';
 
 const router = Router();
 
-// Reservierung erstellen (jeder Authentifizierte)
+// Reservierung erstellen (jeder Authentifizierte) - WIEDERHERGESTELLT
 router.post('/', authMiddleware, createReservation);
 
 // Alle Reservierungen abrufen (Admin) oder eigene (Nutzer)

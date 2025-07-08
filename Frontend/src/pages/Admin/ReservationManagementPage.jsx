@@ -139,7 +139,7 @@ function ReservationManagementPage() {
 
             {/* Zurück-Button zum Dashboard */}
             <button
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate('/admin/dashboard')}
                 style={{
                     marginBottom: '15px',
                     backgroundColor: '#007bff',

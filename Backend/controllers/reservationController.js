@@ -5,26 +5,29 @@ import { Op } from 'sequelize';
 
 // Neue Reservierung erstellen
 export const createReservation = async (req, res) => {
-    const { carId, startTime, endTime } = req.body;
+    const { carId, startTime, endTime, dropOffLocation } = req.body; // dropOffLocation hinzugefügt
     const userId = req.user.id; // Kommt vom JWT
+
+    if (!carId || !startTime || !endTime) {
+        return res.status(400).json({ message: 'Car ID, start time, and end time are required.' });
+    }
 
     try {
         // Prüfen, ob Auto existiert
         const car = await Car.findByPk(carId);
         if (!car) {
-            return res.status(404).json({ message: 'Car not found' });
+            return res.status(404).json({ message: 'Car not found.' });
         }
 
         // Prüfen, ob Auto für den Zeitraum verfügbar ist
         const existingReservations = await Reservation.findAll({
             where: {
                 carId: carId,
-                [Op.or]: [
-                    { // Neue Reservierung beginnt während einer bestehenden
-                        startTime: { [Op.lt]: new Date(endTime) },
-                        endTime: { [Op.gt]: new Date(startTime) }
-                    }
-                ]
+                // Standard-Überlappungsprüfung: (StartA < EndB) and (EndA > StartB)
+                // Eine bestehende Reservierung (A) überlappt mit der neuen (B) wenn:
+                // existing.startTime < new.endTime AND existing.endTime > new.startTime
+                startTime: { [Op.lt]: new Date(endTime) },
+                endTime: { [Op.gt]: new Date(startTime) }
             }
         });
 
@@ -34,22 +37,34 @@ export const createReservation = async (req, res) => {
 
         // Optional: Kosten berechnen (sehr vereinfacht)
         const durationMs = new Date(endTime).getTime() - new Date(startTime).getTime();
+        if (durationMs <= 0) {
+            return res.status(400).json({ message: 'End time must be after start time.' });
+        }
         const durationHours = durationMs / (1000 * 60 * 60);
         const totalCost = car.dailyRate * (durationHours / 24); // Angenommen dailyRate ist pro Tag
 
-        const newReservation = await Reservation.create({
+        const newReservationData = {
             userId,
             carId,
-            startTime,
-            endTime,
+            startTime: new Date(startTime),
+            endTime: new Date(endTime),
             totalCost: parseFloat(totalCost.toFixed(2)),
             status: 'pending' // Oder 'confirmed', je nach Logik
-        });
+        };
+
+        if (dropOffLocation) {
+            newReservationData.dropOffLocation = dropOffLocation;
+        }
+
+        const newReservation = await Reservation.create(newReservationData);
 
         res.status(201).json({ message: 'Reservation created successfully', reservation: newReservation });
     } catch (error) {
-        console.error('Create reservation error:', error.message);
-        res.status(500).send('Server error');
+        console.error('Create reservation error:', error);
+        if (error.name === 'SequelizeValidationError') {
+            return res.status(400).json({ message: 'Validation error', errors: error.errors.map(e => e.message) });
+        }
+        res.status(500).json({ message: 'Server error while creating reservation.' });
     }
 };
 
@@ -105,8 +120,9 @@ export const getReservationById = async (req, res) => {
 
 // Reservierung aktualisieren (Admin oder Besitzer, eingeschränkt)
 export const updateReservation = async (req, res) => {
-    const { id } = req.params;
-    const { startTime, endTime, status, totalCost, carId, userId } = req.body; // Admin könnte mehr ändern
+    const { id } = req.params; // ID der zu aktualisierenden Reservierung
+    // Felder, die potenziell geändert werden können:
+    const { startTime, endTime, status, totalCost, carId, userId, dropOffLocation } = req.body;
 
     try {
         let reservation = await Reservation.findByPk(id);
@@ -121,27 +137,78 @@ export const updateReservation = async (req, res) => {
 
         // Benutzer darf nur bestimmte Felder ändern (z.B. Zeiträume, nicht Status oder Kosten)
         // Admin darf alles ändern
+
+        let newStartTime = startTime ? new Date(startTime) : reservation.startTime;
+        let newEndTime = endTime ? new Date(endTime) : reservation.endTime;
+        const newCarId = (req.user.role === 'admin' && carId) ? carId : reservation.carId; // Nur Admin kann carId ändern
+
+        // Wenn Zeiten oder Fahrzeug geändert werden, Verfügbarkeit prüfen und Kosten neu berechnen
+        if (startTime || endTime || (req.user.role === 'admin' && carId && carId !== reservation.carId)) {
+            if (newEndTime.getTime() <= newStartTime.getTime()) {
+                return res.status(400).json({ message: 'End time must be after start time.' });
+            }
+
+            const carToReserve = await Car.findByPk(newCarId);
+            if (!carToReserve) {
+                return res.status(404).json({ message: 'Car not found for reservation update.' });
+            }
+
+            // Verfügbarkeitsprüfung (andere Reservierungen für dieses Auto ausschließen)
+            const conflictingReservations = await Reservation.findAll({
+                where: {
+                    id: { [Op.ne]: reservation.id }, // Schließe die aktuelle Reservierung aus
+                    carId: newCarId,
+                    [Op.or]: [
+                        { startTime: { [Op.lt]: newEndTime }, endTime: { [Op.gt]: newStartTime } },
+                        { startTime: { [Op.gte]: newStartTime, [Op.lt]: newEndTime } }, // Überlappt Start
+                        { endTime: { [Op.gt]: newStartTime, [Op.lte]: newEndTime } }    // Überlappt Ende
+                    ]
+                }
+            });
+
+            if (conflictingReservations.length > 0) {
+                return res.status(400).json({ message: 'Car is not available for the new selected time slot.' });
+            }
+
+            reservation.startTime = newStartTime;
+            reservation.endTime = newEndTime;
+
+            // Kosten neu berechnen
+            const durationMs = newEndTime.getTime() - newStartTime.getTime();
+            const durationHours = durationMs / (1000 * 60 * 60);
+            reservation.totalCost = parseFloat((carToReserve.dailyRate * (durationHours / 24)).toFixed(2));
+        }
+
+        // Update anderer Felder basierend auf Rolle
         if (req.user.role === 'admin') {
-            reservation.startTime = startTime || reservation.startTime;
-            reservation.endTime = endTime || reservation.endTime;
-            reservation.status = status || reservation.status;
-            reservation.totalCost = totalCost || reservation.totalCost;
-            reservation.carId = carId || reservation.carId;
-            reservation.userId = userId || reservation.userId;
-        } else {
-            // Normale Benutzer dürfen nur startTime und endTime ändern (oder stornieren)
-            reservation.startTime = startTime || reservation.startTime;
-            reservation.endTime = endTime || reservation.endTime;
-            if (status === 'cancelled') { // Beispiel: Benutzer kann nur stornieren
+            if (status) reservation.status = status;
+            if (totalCost && !startTime && !endTime) reservation.totalCost = parseFloat(totalCost); // Nur wenn nicht schon durch Zeitänderung berechnet
+            if (userId) reservation.userId = userId; // Admin kann den Benutzer ändern
+            if (carId) reservation.carId = carId; // Admin kann das Auto ändern (Verfügbarkeit oben geprüft)
+            // dropOffLocation kann von Admin und Benutzer geändert werden (siehe unten)
+        } else { // Normaler Benutzer
+            if (status === 'cancelled') { // Benutzer kann nur stornieren
                 reservation.status = status;
             }
+            // startTime, endTime, totalCost wurden oben schon behandelt, wenn geändert
         }
+
+        // dropOffLocation kann von beiden (Besitzer oder Admin) geändert werden
+        // Wenn 'dropOffLocation' im Body ist, wird es aktualisiert.
+        // Um es explizit zu löschen, könnte man 'null' senden.
+        if (dropOffLocation !== undefined) { // Erlaube auch das Setzen auf null/leeren String
+            reservation.dropOffLocation = dropOffLocation;
+        }
+
 
         await reservation.save();
         res.json({ message: 'Reservation updated successfully', reservation });
     } catch (error) {
-        console.error('Update reservation error:', error.message);
-        res.status(500).send('Server error');
+        console.error('Update reservation error:', error);
+        if (error.name === 'SequelizeValidationError') {
+            return res.status(400).json({ message: 'Validation error', errors: error.errors.map(e => e.message) });
+        }
+        res.status(500).json({ message: 'Server error while updating reservation.'});
     }
 };
 

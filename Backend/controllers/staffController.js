@@ -6,6 +6,7 @@ import Car from '../models/Car.js';
 import Reservation from '../models/Reservation.js';
 import Rate from '../models/Rates.js'; // Importiere das Rate-Modell
 import { Op } from 'sequelize';
+import bcrypt from "bcryptjs";
 
 // Beispiel: Mitarbeiter kann Benutzerdaten aktualisieren (eingeschränkter als Admin)
 export const updateUserDataByStaff = async (req, res) => {
@@ -148,4 +149,4 @@ export const deleteRateByStaff = async (req, res) => {
         console.error('deleteRateByStaff error:', error);
         res.status(500).json({ message: 'Serverfehler beim Löschen des Tarifs.' });
     }
-};
+}

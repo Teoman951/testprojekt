@@ -4,6 +4,7 @@
 import express  from 'express';
 import cors     from 'cors';
 import dotenv   from 'dotenv';
+import { fileURLToPath } from 'url';
 
 import { connectDB, sequelize } from './config/database.js';
 
@@ -12,16 +13,24 @@ import userRoutes        from './routes/userRoutes.js';
 import carRoutes         from './routes/carRoutes.js';
 import reservationRoutes from './routes/reservationRoutes.js';
 import ratesRoutes       from './routes/ratesRoutes.js';
+import staffRoutes from './routes/staffRoutes.js';
+import adminRoutes from './routes/adminRoutes.js'; // NEUER IMPORT
 
 import User from './models/User.js';
 import Car from './models/Car.js';
 import Reservation from './models/Reservation.js';
 import Rates from './models/Rates.js';
+import path from "path";
+import staff from "./models/Staff.js";
 
 dotenv.config();
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 /* ───────────────────── Middleware ─────────────────────── */
 
@@ -38,10 +47,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/rates', ratesRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/admin', adminRoutes); // NEU HINZUGEFÜGT
 
 //   Static-Files: Führerschein-Bilder ausliefern
 //     (Multer legt sie in uploads/licenses/ ab)
-app.use('/uploads', express.static('uploads'));    //  <- NEU
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));   //  <- NEU
 
 app.get('/', (_req, res) => res.send('Welcome to the MoveSnart Backend!'));
 
@@ -61,9 +72,12 @@ const startServer = async () => {
         User.belongsTo(Rates, { foreignKey: 'rateId', as: 'AssignedRate' });
         Rates.hasMany(User, { foreignKey: 'rateId' });
 
-    //  Schema automatisch **angleichen**
-    await sequelize.sync({ alter: true }); 
-    console.log('All models synchronized (alter:true)');
+    //  Schema automatisch **angleichen** - Temporär auskommentiert, um ForeignKeyConstraintError zu vermeiden
+    // await sequelize.sync({ alter: true });
+    // console.log('All models synchronized (alter:true)');
+    // Stattdessen könnte man hier prüfen, ob die DB überhaupt erreichbar ist, ohne Schemaänderungen zu versuchen:
+    await sequelize.authenticate();
+    console.log('Database connection successful. Model synchronization (alter:true) is commented out.');
 
     app.listen(PORT, () =>
       console.log(`Server is running on http://localhost:${PORT}`)

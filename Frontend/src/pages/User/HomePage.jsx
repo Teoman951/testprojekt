@@ -11,7 +11,7 @@ function HomePage() {
   const [cars, setCars] = useState([]);
   const [error, setError] = useState("");
 
-  const handleReserve = (carId) => {
+  const handleReserve = (carId) => { // WIEDERHERGESTELLT
     if (token) {
       navigate(`/new-reservation/${carId}`);
     } else {
@@ -67,6 +67,7 @@ function HomePage() {
             <p>
               <em>{car.location}</em>
             </p>
+            {/* Reservieren-Button wiederhergestellt */}
             <button
               className="reserve-button"
               onClick={() => handleReserve(car.id)}

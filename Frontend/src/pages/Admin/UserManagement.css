@@ -1,5 +1,14 @@
+/* Die spezifische Regel für eine breitere UserManagementPage wird entfernt,
+   damit wieder die Standardbreite des .content-container (aus App.css, z.B. max-width: 500px) greift.
+   Falls eine andere spezifische Breite gewünscht ist, die vom Standard abweicht,
+   könnte hier ein neuer max-width-Wert gesetzt werden.
+*/
+.user-management-page.content-container {
+    max-width: 95%; /* Wieder aktiviert für breitere Ansicht */
+}
+
 .user-management {
-    padding: 2rem;
+    padding: 2rem; /* Dieses Padding ist innerhalb des .content-container */
 }
 
 .user-management h1 {

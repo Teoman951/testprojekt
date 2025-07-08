@@ -39,6 +39,11 @@ function UserManagementPage() {
     const [newLicenseFront, setNewLicenseFront] = useState(null);
     const [newLicenseBack, setNewLicenseBack] = useState(null);
 
+    // Handler für Dateiänderungen
+    const handleFileChange = (e, setter) => {
+        setter(e.target.files[0]);
+    };
+
 // Führerschein-Dateien beim Bearbeiten
     const [editLicenseFront, setEditLicenseFront] = useState(null);
     const [editLicenseBack, setEditLicenseBack] = useState(null);
@@ -214,60 +219,72 @@ function UserManagementPage() {
             return;
         }
 
-        // Nur bei 'user' Rolle Pflichtfelder prüfen
-        if (newRole === 'user') {
-            if (
-                !newLicenseNo || !newLicenseIssue || !newLicenseExpiry ||
-                (!newLicenseFront && !newLicenseBack) ||  // mind. eine Datei erforderlich
-                !newPayType ||
-                (newPayType === 'sepa' && (!newIban || !newBic)) ||
-                (newPayType === 'card' && (!newCardNo || !newCardExp || !newCardCvc))
-            ) {
-                setError('Bitte alle erforderlichen Führerschein- und Zahlungsfelder ausfüllen.');
-                return;
-            }
-        }
-
         if (!newUsername || !newEmail || !newPassword) {
-            setError('Bitte alle Felder für den neuen Benutzer ausfüllen.');
+            setError('Benutzername, E-Mail und Passwort sind Pflichtfelder.');
             return;
         }
 
+        const formData = new FormData();
+        formData.append('username', newUsername);
+        formData.append('email', newEmail);
+        formData.append('password', newPassword);
+        formData.append('role', newRole); // Rolle wird mitgesendet
+
+        if (newRole === 'user') {
+            // Validierung für Benutzerrolle
+            if (!newLicenseFront) {
+                setError('Das vordere Führerscheinfoto ist für Benutzer ein Pflichtfeld.');
+                return;
+            }
+            formData.append('licenseFront', newLicenseFront);
+            if (newLicenseBack) {
+                formData.append('licenseBack', newLicenseBack);
+            }
+            // Optionale Felder für Rolle 'user' hinzufügen (gemäß Backend-Logik der allgemeinen Registrierung)
+            if (newLicenseNo) formData.append('licenseNo', newLicenseNo);
+            if (newLicenseIssue) formData.append('licenseIssue', newLicenseIssue);
+            if (newLicenseExpiry) formData.append('licenseExpiry', newLicenseExpiry);
+
+            // Zahlungsdaten für Rolle 'user' - Annahme: Backend erwartet sie, auch wenn optional
+            // Wenn diese nicht optional sind, müssen die Felder im Formular als `required` markiert werden
+            // oder hier eine Validierung hinzugefügt werden.
+            // Fürs Erste senden wir sie, wenn vorhanden.
+            if (newPayType) formData.append('payType', newPayType);
+            if (newPayType === 'sepa') {
+                if (newIban) formData.append('iban', newIban);
+                if (newBic) formData.append('bic', newBic);
+            } else if (newPayType === 'card') {
+                if (newCardNo) formData.append('cardNo', newCardNo);
+                if (newCardExp) formData.append('cardExp', newCardExp);
+                if (newCardCvc) formData.append('cardCvc', newCardCvc);
+            }
+        }
+        // Für andere Rollen (z.B. 'mitarbeiter', 'admin') sind Lizenz- und Zahlungsdaten nicht erforderlich
+
         try {
+            // Die Route /api/auth/register wird verwendet, da sie FormData und die Erstellung von Benutzern mit Rolle handhabt
             const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: newUsername,
-                    email: newEmail,
-                    password: newPassword,
-                    role: newRole,
-                    licenseNo: newLicenseNo,
-                    licenseIssue: newLicenseIssue,
-                    licenseExpiry: newLicenseExpiry,
-                    payType: newPayType,
-                    iban: newIban,
-                    bic: newBic,
-                    cardNo: newCardNo,
-                    cardExp: newCardExp,
-                    cardCvc: newCardCvc,
-                }),
+                body: formData, // FormData verwenden, kein JSON.stringify und kein Content-Type Header
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                alert('Neuer Benutzer erfolgreich erstellt!');
+                alert('Neuer Benutzer erfolgreich erstellt! ID: ' + (data.userId || data.user?.id));
+                // Formular zurücksetzen
                 setNewUsername('');
                 setNewEmail('');
                 setNewPassword('');
                 setNewRole('user');
-
                 setNewLicenseNo('');
                 setNewLicenseIssue('');
                 setNewLicenseExpiry('');
+                setNewLicenseFront(null); // Dateifeld zurücksetzen
+                setNewLicenseBack(null);  // Dateifeld zurücksetzen
+                // Ggf. Dateieingabefelder im DOM explizit zurücksetzen, falls nötig:
+                // document.getElementById('newLicenseFront').value = null;
+                // document.getElementById('newLicenseBack').value = null;
                 setNewPayType('card');
                 setNewIban('');
                 setNewBic('');
@@ -286,16 +303,36 @@ function UserManagementPage() {
     };
 
     if (loading) return <div className="content-container"><p>Benutzer werden geladen...</p></div>;
-    if (error && !editUserId) return <div className="content-container error-message"><h2>Fehler:</h2><p>{error}</p></div>;
+    if (error && !editUserId) return <div className="content-container user-management-page error-message"><h2>Fehler:</h2><p>{error}</p></div>; // Klasse hier auch hinzufügen
 
     return (
-        <div className="content-container">
+        // Die Klasse 'user-management-page' wird hinzugefügt, um das spezifische Styling aus UserManagement.css anzuwenden
+        <div className="content-container user-management-page">
             <h2>Benutzerverwaltung</h2>
             {error && <p className="error-message">{error}</p>}
 
-            {/* Zurück-Button zum Dashboard */}
-            <button
-                onClick={() => navigate('/admin/dashboard')}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                {/* Zurück-Button zum Dashboard */}
+                <button
+                    onClick={() => navigate('/admin/dashboard')}
+                    style={{
+                        backgroundColor: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 12px',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    ← Zurück zum Dashboard
+                </button>
+                {/* Der Button zur separaten Seite wird entfernt, da die Funktionalität integriert wurde */}
+            </div>
+
+            {/* Der folgende Block war fehlerhaft und wurde entfernt.
+                 Er war ein Überbleibsel eines früheren Buttons.
+            */}
+            {/*
                 style={{
                     marginBottom: '15px',
                     backgroundColor: '#007bff',
@@ -308,10 +345,9 @@ function UserManagementPage() {
             >
                 ← Zurück zum Dashboard
             </button>
+            */}
 
-            {/* Formular zum Erstellen eines neuen Benutzers */}
-            {/* ... (dein bereits existierendes Formular) */}
-            {/* Neues Benutzer erstellen Formular */}
+            {/* Formular zum Erstellen eines neuen Benutzers (das bereits existierende in dieser Komponente) */}
             <h3>Neuen Benutzer erstellen</h3>
             <form onSubmit={handleCreateUser}
                   style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px' }}>
@@ -330,6 +366,8 @@ function UserManagementPage() {
                     <input type="password" id="newPassword" value={newPassword}
                            onChange={(e) => setNewPassword(e.target.value)} required/>
                 </div>
+                {/* Die Rollenauswahl wird entfernt, da über /api/auth/register immer 'user' erstellt wird.
+                    Für 'mitarbeiter' gibt es /api/admin/staff/register (CreateStaffPage).
                 <div className="form-group">
                     <label htmlFor="newRole">Rolle:</label>
                     <select id="newRole" value={newRole} onChange={(e) => setNewRole(e.target.value)}>
@@ -337,38 +375,40 @@ function UserManagementPage() {
                         <option value="mitarbeiter">mitarbeiter</option>
                     </select>
                 </div>
+                */}
 
-                {/* Führerschein */}
+                {/* Führerschein - Felder sind optional, außer newLicenseFront */}
                 <div className="form-group">
-                    <label htmlFor="newLicenseNo">Führerschein Nr.:</label>
+                    <label htmlFor="newLicenseNo">Führerschein Nr. (Optional):</label>
                     <input type="text" id="newLicenseNo" value={newLicenseNo}
-                           onChange={(e) => setNewLicenseNo(e.target.value)} required={newRole === 'user'}/>
+                           onChange={(e) => setNewLicenseNo(e.target.value)} />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="newLicenseIssue">Ausstellungsdatum:</label>
+                    <label htmlFor="newLicenseIssue">Ausstellungsdatum (Optional):</label>
                     <input type="date" id="newLicenseIssue" value={newLicenseIssue}
-                           onChange={(e) => setNewLicenseIssue(e.target.value)} required={newRole === 'user'}/>
+                           onChange={(e) => setNewLicenseIssue(e.target.value)} />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="newLicenseExpiry">Ablaufdatum:</label>
+                    <label htmlFor="newLicenseExpiry">Ablaufdatum (Optional):</label>
                     <input type="date" id="newLicenseExpiry" value={newLicenseExpiry}
-                           onChange={(e) => setNewLicenseExpiry(e.target.value)} required={newRole === 'user'}/>
+                           onChange={(e) => setNewLicenseExpiry(e.target.value)} />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="newLicenseFront">Führerschein Vorderseite:</label>
-                    <input type="file" id="newLicenseFront" onChange={(e) => setNewLicenseFront(e.target.files[0])}
-                           accept="image/*,.pdf" required={newRole === 'user'}/>
+                    <label htmlFor="newLicenseFront">Führerschein Vorderseite (Pflicht):</label>
+                    <input type="file" id="newLicenseFront" onChange={(e) => handleFileChange(e, setNewLicenseFront)}
+                           accept="image/*" required /> {/* Dieses Feld ist immer Pflicht */}
                 </div>
                 <div className="form-group">
-                    <label htmlFor="newLicenseBack">Führerschein Rückseite:</label>
-                    <input type="file" id="newLicenseBack" onChange={(e) => setNewLicenseBack(e.target.files[0])}
-                           accept="image/*,.pdf" required={newRole === 'user'}/>
+                    <label htmlFor="newLicenseBack">Führerschein Rückseite (Optional):</label>
+                    <input type="file" id="newLicenseBack" onChange={(e) => handleFileChange(e, setNewLicenseBack)}
+                           accept="image/*" />
                 </div>
 
-                {/* Zahlungsmethode */}
+                {/* Zahlungsmethode - Felder sind optional */}
                 <div className="form-group">
-                    <label htmlFor="newPayType">Zahlungsmethode:</label>
-                    <select id="newPayType" value={newPayType} onChange={(e) => setNewPayType(e.target.value)} required>
+                    <label htmlFor="newPayType">Zahlungsmethode (Optional):</label>
+                    <select id="newPayType" value={newPayType} onChange={(e) => setNewPayType(e.target.value)}>
+                        <option value="">Bitte wählen...</option> {/* Option für keine Auswahl */}
                         <option value="card">Kreditkarte</option>
                         <option value="sepa">SEPA</option>
                         <option value="paypal">PayPal</option>
@@ -378,13 +418,11 @@ function UserManagementPage() {
                     <>
                         <div className="form-group">
                             <label htmlFor="newIban">IBAN:</label>
-                            <input type="text" id="newIban" value={newIban} onChange={(e) => setNewIban(e.target.value)}
-                                   required/>
+                            <input type="text" id="newIban" value={newIban} onChange={(e) => setNewIban(e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="newBic">BIC:</label>
-                            <input type="text" id="newBic" value={newBic} onChange={(e) => setNewBic(e.target.value)}
-                                   required/>
+                            <input type="text" id="newBic" value={newBic} onChange={(e) => setNewBic(e.target.value)} />
                         </div>
                     </>
                 )}
@@ -393,17 +431,17 @@ function UserManagementPage() {
                         <div className="form-group">
                             <label htmlFor="newCardNo">Kartennummer:</label>
                             <input type="text" id="newCardNo" value={newCardNo}
-                                   onChange={(e) => setNewCardNo(e.target.value)} required/>
+                                   onChange={(e) => setNewCardNo(e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="newCardExp">Kartenablauf:</label>
                             <input type="month" id="newCardExp" value={newCardExp}
-                                   onChange={(e) => setNewCardExp(e.target.value)} required/>
+                                   onChange={(e) => setNewCardExp(e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="newCardCvc">CVC:</label>
                             <input type="text" id="newCardCvc" value={newCardCvc}
-                                   onChange={(e) => setNewCardCvc(e.target.value)} required/>
+                                   onChange={(e) => setNewCardCvc(e.target.value)} />
                         </div>
                     </>
                 )}
@@ -743,3 +781,4 @@ const buttonStyleCancel = {
     marginLeft: '5px',
 };
 export default UserManagementPage;
+

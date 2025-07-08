@@ -15,10 +15,11 @@ function AdminDashboard() {
                     </Link>
                 </li>
                 <li className="dashboard-card">
-                    <Link to="/admin/createStaff" className="dashboard-link staff-link">
+                    <Link to="/admin/create-staff" className="dashboard-link staff-link"> {/* Pfad korrigiert zu create-staff */}
                         Mitarbeiter erstellen
                     </Link>
                 </li>
+                {/* Link zur Benutzererstellung wurde entfernt und zur UserManagementPage verschoben */}
                 <li className="dashboard-card">
                     <Link to="/admin/cars" className="dashboard-link car-link">
                         Fahrzeuge verwalten

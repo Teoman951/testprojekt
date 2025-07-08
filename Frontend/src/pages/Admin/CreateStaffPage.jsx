@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../services/api'; // Importiere die API-Basis-URL
 
-const API_BASE_URL = 'http://localhost:3001';
+// const API_BASE_URL = 'http://localhost:3001'; // Entfernt, da jetzt importiert
 
 function CreateStaffPage() {
     const [username, setUsername] = useState('');
@@ -26,26 +27,40 @@ function CreateStaffPage() {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/staff`, {
+            // Korrigierter API Endpunkt, um mit dem Backend übereinzustimmen
+            const response = await fetch(`${API_BASE_URL}/api/admin/staff/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-auth-token': token,
+                    'x-auth-token': token, // Token wird jetzt korrekt aus der Variable geholt
                 },
                 body: JSON.stringify({ username, email, password }),
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
-                alert('Mitarbeiter erfolgreich erstellt!');
-                navigate('/admin/users');
-            } else {
-                setError(data.message || 'Fehler beim Erstellen.');
+            if (!response.ok) {
+                // Versuche, JSON-Fehlermeldung zu parsen, falls vorhanden
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch (jsonError) {
+                    // Antwort war kein valides JSON
+                    setError(`Fehler beim Erstellen (Status: ${response.status}). Serverantwort nicht lesbar.`);
+                    console.error('Server response not JSON:', response);
+                    return;
+                }
+                setError(errorData.message || `Fehler beim Erstellen (Status: ${response.status}).`);
+                return;
             }
+
+            // Nur wenn response.ok, versuchen wir, JSON zu parsen (obwohl die Erfolgsantwort auch JSON sein sollte)
+            const data = await response.json(); // Sollte hier sicher sein, wenn response.ok
+            alert(data.message || 'Mitarbeiter erfolgreich erstellt!');
+            navigate('/admin/users');
+
         } catch (err) {
-            setError('Netzwerkfehler beim Erstellen.');
-            console.error(err);
+            // Echter Netzwerkfehler (Server nicht erreichbar etc.)
+            setError('Netzwerkfehler beim Erstellen. Bitte Serververbindung prüfen.');
+            console.error('Network or parsing error:', err);
         }
     };
 
