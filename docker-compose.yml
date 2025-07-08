@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile  
+    platform: linux/amd64           
+    env_file:
+      - ./Backend/.env
+    volumes:
+      - ./Backend/data:/app/data     # SQLite-Datei persistent
+    ports:
+      - "8080:3001"                  # Host:Container
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile         
+    platform: linux/amd64
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
