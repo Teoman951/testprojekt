@@ -148,7 +148,7 @@ function NewReservationPage() {
                     />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="dropOffLocation">Abgabepunkt (optional, Standard ist Abholort):</label>
+                    <label htmlFor="dropOffLocation">Abgabepunkt:</label>
                     <input
                         id="dropOffLocation"
                         type="text"

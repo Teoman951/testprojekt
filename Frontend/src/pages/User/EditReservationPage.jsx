@@ -162,7 +162,7 @@ function EditReservationPage() {
                     />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="dropOffLocation">Abgabepunkt (optional):</label>
+                    <label htmlFor="dropOffLocation">Abgabepunkt :</label>
                     <input
                         id="dropOffLocation"
                         type="text"
