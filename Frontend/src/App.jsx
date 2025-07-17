@@ -93,7 +93,7 @@ function App() {
   {/* Öffentliche Seiten */}
   <Route path="/" element={<LandingPage />} />
   <Route path="/aboutus" element={<AboutUsPage />} />
-  <Route path="/login" element={<LoginPage onLoginSuccess={login} />} />
+  <Route path="/login" element={<LoginPage />} />
   <Route path="/register/*" element={<RegisterWizard />} />
   <Route path="/rates" element={<RatesPage />} />
 
