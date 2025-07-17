@@ -11,7 +11,7 @@ services:
     volumes:
       - ./Backend/data:/app/data     # SQLite-Datei persistent
     ports:
-      - "8080:3001"                  # Host:Container
+      - "3001:3001"                  # Host:Container
     restart: unless-stopped
 
   frontend:
