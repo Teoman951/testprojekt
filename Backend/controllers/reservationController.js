@@ -1,3 +1,18 @@
+/**
+ * Mitarbeiter‑Controller für MoveSmart
+ *
+ * Enthält Aktionen, die Mitarbeitende (und Admins) ausführen dürfen,
+ * aber für reguläre Nutzer gesperrt sind.
+ *
+ * Endpunkte (Beispiele)
+ *
+ * • PUT    /api/staff/users/:id            – Benutzerdaten ändern
+ * • GET    /api/staff/users/:userId/res    – Reservierungen eines Nutzers
+ * • PATCH  /api/staff/reservations/:id     – Reservierungsstatus ändern
+ * • PATCH  /api/staff/cars/:id             – Fahrzeugdaten ändern
+ * • POST   /api/staff/rates                – Tarif anlegen
+ * • DELETE /api/staff/rates/:id            – Tarif löschen
+ */
 import Reservation from '../models/Reservation.js';
 import Car from '../models/Car.js';
 import User from '../models/User.js';
@@ -35,13 +50,13 @@ export const createReservation = async (req, res) => {
             return res.status(400).json({ message: 'Car is not available for the selected time slot.' });
         }
 
-        // Optional: Kosten berechnen (sehr vereinfacht)
+        // Kosten berechnen 
         const durationMs = new Date(endTime).getTime() - new Date(startTime).getTime();
         if (durationMs <= 0) {
             return res.status(400).json({ message: 'End time must be after start time.' });
         }
         const durationHours = durationMs / (1000 * 60 * 60);
-        const totalCost = car.dailyRate * (durationHours / 24); // Angenommen dailyRate ist pro Tag
+        const totalCost = car.dailyRate * (durationHours / 24); 
 
         const newReservationData = {
             userId,
@@ -49,7 +64,7 @@ export const createReservation = async (req, res) => {
             startTime: new Date(startTime),
             endTime: new Date(endTime),
             totalCost: parseFloat(totalCost.toFixed(2)),
-            status: 'pending' // Oder 'confirmed', je nach Logik
+            status: 'pending' 
         };
 
         if (dropOffLocation) {
